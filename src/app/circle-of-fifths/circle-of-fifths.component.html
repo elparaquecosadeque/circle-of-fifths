@@ -1,0 +1,115 @@
+<div class="page">
+  <header class="page-header">
+    <h1>Circle of Fifths</h1>
+    <p>Click any major or minor key to highlight its diatonic chords</p>
+  </header>
+
+  <div class="circle-wrapper">
+    <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-label="Circle of Fifths">
+
+      <!-- ── Key Signature Ring ── -->
+      @for (key of keys; track key.index) {
+        <path
+          [attr.d]="arcPath(KEY_SIG.inner, KEY_SIG.outer, key.index)"
+          class="keysig-segment" />
+        <text
+          [attr.x]="textPos((KEY_SIG.inner + KEY_SIG.outer) / 2, key.index).x"
+          [attr.y]="textPos((KEY_SIG.inner + KEY_SIG.outer) / 2, key.index).y"
+          class="keysig-label">
+          {{ getAccidentalText(key) }}
+        </text>
+      }
+
+      <!-- ── Major Keys Ring ── -->
+      @for (key of keys; track key.index) {
+        <g [ngClass]="['major-group', getMajorState(key.index)]"
+           (click)="selectKey(key.index, 'major')">
+          <path [attr.d]="arcPath(MAJOR.inner, MAJOR.outer, key.index)" />
+
+          <text
+            [attr.x]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).x"
+            [attr.y]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).y + (getMajorRole(key.index) ? -9 : 0)"
+            class="major-label">
+            {{ key.major }}
+          </text>
+
+          @if (getMajorRole(key.index)) {
+            <text
+              [attr.x]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).x"
+              [attr.y]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).y + 11"
+              class="role-label">
+              {{ getMajorRole(key.index) }}
+            </text>
+          }
+        </g>
+      }
+
+      <!-- ── Minor Keys Ring ── -->
+      @for (key of keys; track key.index) {
+        <g [ngClass]="['minor-group', getMinorState(key.index)]"
+           (click)="selectKey(key.index, 'minor')">
+          <path [attr.d]="arcPath(MINOR.inner, MINOR.outer, key.index)" />
+
+          <text
+            [attr.x]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).x"
+            [attr.y]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).y + (getMinorRole(key.index) ? -8 : 0)"
+            class="minor-label">
+            {{ key.minor }}
+          </text>
+
+          @if (getMinorRole(key.index)) {
+            <text
+              [attr.x]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).x"
+              [attr.y]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).y + 9"
+              class="role-label">
+              {{ getMinorRole(key.index) }}
+            </text>
+          }
+        </g>
+      }
+
+      <!-- ── Outer border ── -->
+      <circle cx="300" cy="300" r="289" fill="none" stroke="#1e293b" stroke-width="2.5" />
+
+      <!-- ── Center Circle ── -->
+      <circle cx="300" cy="300" r="99" class="center-circle" />
+
+      @if (selectedInfo) {
+        <text x="300" y="283" class="center-name">{{ selectedInfo.name }}</text>
+        <text x="300" y="304" class="center-scale">{{ selectedInfo.scale }}</text>
+        <text x="300" y="322" class="center-relative">{{ selectedInfo.relativeKey }}</text>
+        <text x="300" y="338" class="center-deselect">↩ click to deselect</text>
+      } @else {
+        <text x="300" y="293" class="center-hint">Click a key</text>
+        <text x="300" y="312" class="center-hint-sm">to see its chords</text>
+      }
+
+    </svg>
+  </div>
+
+  <!-- ── Legend ── -->
+  <div class="legend">
+    <span class="legend-item tonic">Tonic (I / i)</span>
+    <span class="legend-item scale-major">Major chords (IV, V)</span>
+    <span class="legend-item scale-minor">Minor chords (ii, iii, vi)</span>
+    <span class="legend-item scale-diminished">Diminished (vii° / ii°)</span>
+  </div>
+
+  <!-- ── Chord Table ── -->
+  @if (selectedInfo && chordTable.length) {
+    <section class="chord-section">
+      <h2>{{ selectedInfo.fullName }} — Diatonic Chords</h2>
+      <p class="relative-label">{{ selectedInfo.relativeKey }}</p>
+      <div class="chord-grid">
+        @for (row of chordTable; track row.numeral) {
+          <div class="chord-card" [ngClass]="row.state">
+            <div class="chord-numeral">{{ row.numeral }}</div>
+            <div class="chord-name">{{ row.chord }}</div>
+            <div class="chord-type">{{ row.chordType }}</div>
+            <div class="chord-role">{{ row.role }}</div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

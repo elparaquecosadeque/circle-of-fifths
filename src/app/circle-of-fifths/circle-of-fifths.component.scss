@@ -1,0 +1,366 @@
+// ─────────────────────────────────────────────
+// Color palette
+// ─────────────────────────────────────────────
+$bg-page:         #f0f4f8;
+$bg-circle:       #f8fafc;
+$color-text:      #1e293b;
+$color-muted:     #64748b;
+
+// Segment states
+$tonic-fill:      #f59e0b;
+$tonic-hover:     #d97706;
+$major-fill:      #3b82f6;
+$major-hover:     #2563eb;
+$minor-fill:      #06b6d4;
+$minor-hover:     #0891b2;
+
+// Default segment fills
+$major-default:   #dde5f0;
+$major-default-h: #c8d4e8;
+$minor-default:   #eaf0f8;
+$minor-default-h: #d5e1ef;
+$keysig-fill:     #1e293b;
+
+// ─────────────────────────────────────────────
+// Host / Container
+// ─────────────────────────────────────────────
+:host {
+  display: block;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+// ─────────────────────────────────────────────
+// Header
+// ─────────────────────────────────────────────
+.page-header {
+  text-align: center;
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 2rem;
+    font-weight: 800;
+    color: $color-text;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0;
+    color: $color-muted;
+    font-size: 0.95rem;
+  }
+}
+
+// ─────────────────────────────────────────────
+// SVG Circle
+// ─────────────────────────────────────────────
+.circle-wrapper {
+  max-width: 580px;
+  margin: 0 auto;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+}
+
+// ── Key Signature Ring ──
+.keysig-segment {
+  fill: $keysig-fill;
+}
+
+.keysig-label {
+  fill: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+// ── Major Ring ──
+.major-group {
+  cursor: pointer;
+
+  path {
+    fill: $major-default;
+    stroke: $bg-circle;
+    stroke-width: 2;
+    transition: fill 0.18s ease;
+  }
+
+  &:hover path { fill: $major-default-h; }
+
+  .major-label {
+    fill: #334155;
+    font-size: 15px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+    transition: fill 0.18s ease;
+  }
+
+  &.tonic {
+    path { fill: $tonic-fill; }
+    &:hover path { fill: $tonic-hover; }
+    .major-label { fill: #fff; }
+  }
+
+  &.scale-major {
+    path { fill: $major-fill; }
+    &:hover path { fill: $major-hover; }
+    .major-label { fill: #fff; }
+  }
+}
+
+// ── Minor Ring ──
+.minor-group {
+  cursor: pointer;
+
+  path {
+    fill: $minor-default;
+    stroke: $bg-circle;
+    stroke-width: 2;
+    transition: fill 0.18s ease;
+  }
+
+  &:hover path { fill: $minor-default-h; }
+
+  .minor-label {
+    fill: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+    transition: fill 0.18s ease;
+  }
+
+  &.tonic {
+    path { fill: $tonic-fill; }
+    &:hover path { fill: $tonic-hover; }
+    .minor-label { fill: #fff; }
+  }
+
+  &.scale-minor {
+    path { fill: $minor-fill; }
+    &:hover path { fill: $minor-hover; }
+    .minor-label { fill: #fff; }
+  }
+
+  &.scale-diminished {
+    path { fill: #a855f7; }
+    &:hover path { fill: #9333ea; }
+    .minor-label { fill: #fff; }
+  }
+}
+
+// ── Role labels (roman numerals) ──
+.role-label {
+  font-size: 10px;
+  font-style: italic;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  fill: rgba(255, 255, 255, 0.85);
+}
+
+// ── Center Circle ──
+.center-circle {
+  fill: #fff;
+  stroke: #e2e8f0;
+  stroke-width: 2;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.08));
+}
+
+.center-name {
+  font-size: 30px;
+  font-weight: 800;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  fill: $color-text;
+  letter-spacing: -0.02em;
+}
+
+.center-scale {
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  fill: $color-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.center-relative {
+  font-size: 9.5px;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  fill: #94a3b8;
+}
+
+.center-deselect {
+  font-size: 8px;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  fill: #cbd5e1;
+}
+
+.center-hint {
+  font-size: 16px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  fill: #94a3b8;
+}
+
+.center-hint-sm {
+  font-size: 11px;
+  text-anchor: middle;
+  dominant-baseline: auto;
+  fill: #cbd5e1;
+}
+
+// ─────────────────────────────────────────────
+// Legend
+// ─────────────────────────────────────────────
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 16px 0 0;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: $color-muted;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    &.tonic::before         { background: $tonic-fill; }
+    &.scale-major::before   { background: $major-fill; }
+    &.scale-minor::before   { background: $minor-fill; }
+    &.scale-diminished::before { background: #a855f7; }
+  }
+}
+
+// ─────────────────────────────────────────────
+// Chord Table
+// ─────────────────────────────────────────────
+.chord-section {
+  margin-top: 36px;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  .relative-label {
+    margin: 0 0 20px;
+    font-size: 0.88rem;
+    color: $color-muted;
+  }
+}
+
+.chord-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: center;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.chord-card {
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-width: 82px;
+  flex-shrink: 0;
+  text-align: center;
+  background: #e8edf5;
+  border: 2px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .chord-numeral {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #64748b;
+  }
+
+  .chord-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: $color-text;
+    margin: 2px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .chord-type {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+  }
+
+  .chord-role {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+
+  // State-based card colors
+  &.tonic {
+    background: #fef9ec;
+    border-color: $tonic-fill;
+    .chord-numeral, .chord-name { color: #92400e; }
+  }
+
+  &.scale-major {
+    background: #eff6ff;
+    border-color: $major-fill;
+    .chord-numeral, .chord-name { color: #1e40af; }
+  }
+
+  &.scale-diminished {
+    background: #fdf4ff;
+    border-color: #a855f7;
+    .chord-numeral, .chord-name { color: #6b21a8; }
+  }
+}
+
+// ─────────────────────────────────────────────
+// Responsive
+// ─────────────────────────────────────────────
+@media (max-width: 480px) {
+  .page-header h1 { font-size: 1.5rem; }
+  .chord-card { min-width: 75px; padding: 10px 12px; }
+}

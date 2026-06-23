@@ -358,6 +358,103 @@ $keysig-fill:     #1e293b;
 }
 
 // ─────────────────────────────────────────────
+// Chord Progressions
+// ─────────────────────────────────────────────
+.progressions-section {
+  margin-top: 36px;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 20px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+}
+
+.progression-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.progression-card {
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  text-align: left;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+}
+
+.prog-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.prog-mood {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $color-text;
+}
+
+.prog-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $color-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.prog-genre {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.prog-chords {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.prog-chord {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: $color-text;
+  letter-spacing: -0.02em;
+}
+
+.prog-numerals {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #94a3b8;
+}
+
+.prog-arrow {
+  color: #cbd5e1;
+  font-size: 0.8rem;
+}
+
+// ─────────────────────────────────────────────
 // Responsive
 // ─────────────────────────────────────────────
 @media (max-width: 480px) {

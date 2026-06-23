@@ -17,6 +17,28 @@ interface ChordRow {
   state: 'tonic' | 'scale-major' | 'scale-minor' | 'scale-diminished';
 }
 
+interface Progression {
+  name: string;
+  mood: string;
+  genre: string;
+  numerals: string[];
+  chords: string[];
+}
+
+const MAJOR_PROGRESSIONS: Omit<Progression, 'chords'>[] = [
+  { name: 'Anthemic',    mood: '😄 Joyful',      genre: 'Folk, Rock',    numerals: ['I','IV','V','I']      },
+  { name: 'Hopeful',     mood: '✨ Hopeful',      genre: 'Pop, Indie',    numerals: ['I','V','vi','IV']     },
+  { name: 'Melancholic', mood: '😢 Emotional',    genre: 'Ballads, Pop',  numerals: ['vi','IV','I','V']     },
+  { name: 'Cinematic',   mood: '🎬 Tense',        genre: 'Film, Jazz',    numerals: ['ii','V','vii°','I']   },
+];
+
+const MINOR_PROGRESSIONS: Omit<Progression, 'chords'>[] = [
+  { name: 'Brooding',    mood: '🌑 Dark',         genre: 'Rock, Metal',   numerals: ['i','VII','VI','VII']  },
+  { name: 'Haunting',    mood: '👻 Mysterious',   genre: 'Film, Gothic',  numerals: ['i','iv','VII','III']  },
+  { name: 'Driving',     mood: '⚡ Urgent',        genre: 'Pop, EDM',      numerals: ['i','VI','III','VII']  },
+  { name: 'Wistful',     mood: '🌙 Wistful',      genre: 'Cinematic',     numerals: ['i','v','VI','VII']    },
+];
+
 @Component({
   selector: 'app-circle-of-fifths',
   standalone: true,
@@ -202,5 +224,13 @@ export class CircleOfFifthsComponent {
         { numeral: 'ii°',  chord: this.dimChord(idx),    chordType: 'diminished', role: 'Supertonic', state: 'scale-diminished' },
       ];
     }
+  }
+
+  get progressions(): Progression[] {
+    const table = this.chordTable;
+    if (!table.length) return [];
+    const lookup = new Map(table.map(r => [r.numeral, r.chord]));
+    const defs = this.selectedType() === 'major' ? MAJOR_PROGRESSIONS : MINOR_PROGRESSIONS;
+    return defs.map(d => ({ ...d, chords: d.numerals.map(n => lookup.get(n) ?? n) }));
   }
 }

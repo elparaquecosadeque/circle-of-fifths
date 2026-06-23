@@ -112,4 +112,34 @@
       </div>
     </section>
   }
+
+  <!-- ── Chord Progressions ── -->
+  @if (progressions.length) {
+    <section class="progressions-section">
+      <h2>Common Progressions in {{ selectedInfo?.fullName }}</h2>
+      <div class="progression-list">
+        @for (prog of progressions; track prog.name) {
+          <div class="progression-card">
+            <div class="prog-header">
+              <span class="prog-mood">{{ prog.mood }}</span>
+              <span class="prog-name">{{ prog.name }}</span>
+              <span class="prog-genre">{{ prog.genre }}</span>
+            </div>
+            <div class="prog-chords">
+              @for (chord of prog.chords; track $index; let last = $last) {
+                <span class="prog-chord">{{ chord }}</span>
+                @if (!last) { <span class="prog-arrow">→</span> }
+              }
+            </div>
+            <div class="prog-numerals">
+              @for (num of prog.numerals; track $index; let last = $last) {
+                <span>{{ num }}</span>
+                @if (!last) { <span class="prog-arrow">→</span> }
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
 </div>

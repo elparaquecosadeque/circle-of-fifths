@@ -52,9 +52,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
@@ -91,6 +89,32 @@
             }
           },
           "defaultConfiguration": "development"
+        }
+      }
+    },
+    "circle-of-fifths-lib": {
+      "projectType": "library",
+      "root": "projects/circle-of-fifths-lib",
+      "sourceRoot": "projects/circle-of-fifths-lib/src",
+      "prefix": "the-chords",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/circle-of-fifths-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/circle-of-fifths-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/circle-of-fifths-lib/tsconfig.spec.json"
+          }
         }
       }
     }

@@ -25,7 +25,17 @@ $keysig-fill:     #1e293b;
 // Host / Container
 // ─────────────────────────────────────────────
 :host {
+  box-sizing: border-box;
   display: block;
+  min-height: 100%;
+  background: $bg-page;
+  color: $color-text;
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: inherit;
 }
 
 .page {

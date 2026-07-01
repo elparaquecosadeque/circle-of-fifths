@@ -40,11 +40,11 @@ const MINOR_PROGRESSIONS: Omit<Progression, 'chords'>[] = [
 ];
 
 @Component({
-  selector: 'app-circle-of-fifths',
+  selector: 'the-chords-circle-of-fifths',
   standalone: true,
   imports: [NgClass],
-  templateUrl: './circle-of-fifths.component.html',
-  styleUrl: './circle-of-fifths.component.scss',
+  templateUrl: './circle-of-fifths.html',
+  styleUrl: './circle-of-fifths.scss',
 })
 export class CircleOfFifthsComponent {
   readonly CX = 300;

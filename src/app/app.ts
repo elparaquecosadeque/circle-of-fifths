@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { CircleOfFifthsComponent } from './circle-of-fifths/circle-of-fifths.component';
+import { CircleOfFifthsComponent } from '@gblp/circle-of-fifths';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CircleOfFifthsComponent],
-  template: `<app-circle-of-fifths />`,
+  template: `<the-chords-circle-of-fifths />`,
 })
 export class App {}

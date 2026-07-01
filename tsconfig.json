@@ -3,6 +3,9 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "paths": {
+      "@gblp/circle-of-fifths": ["./dist/circle-of-fifths-lib"]
+    },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
@@ -23,6 +26,12 @@
   "references": [
     {
       "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./projects/circle-of-fifths-lib/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/circle-of-fifths-lib/tsconfig.spec.json"
     }
   ]
 }

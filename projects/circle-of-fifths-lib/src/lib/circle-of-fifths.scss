@@ -1,30 +1,43 @@
 // ─────────────────────────────────────────────
 // Color palette
 // ─────────────────────────────────────────────
-$bg-page:         #f0f4f8;
-$bg-circle:       #f8fafc;
-$color-text:      #1e293b;
-$color-muted:     #64748b;
+$bg-page: var(--_chords-background);
+$bg-circle: var(--_chords-surface);
+$color-text: var(--_chords-text);
+$color-muted: var(--_chords-muted);
 
 // Segment states
-$tonic-fill:      #f59e0b;
-$tonic-hover:     #d97706;
-$major-fill:      #3b82f6;
-$major-hover:     #2563eb;
-$minor-fill:      #06b6d4;
-$minor-hover:     #0891b2;
+$tonic-fill: var(--_chords-highlight);
+$tonic-hover: color-mix(in srgb, var(--_chords-highlight) 84%, var(--_chords-text));
+$major-fill: var(--_chords-primary);
+$major-hover: color-mix(in srgb, var(--_chords-primary) 82%, var(--_chords-text));
+$minor-fill: var(--_chords-secondary);
+$minor-hover: color-mix(in srgb, var(--_chords-secondary) 82%, var(--_chords-text));
 
 // Default segment fills
-$major-default:   #dde5f0;
-$major-default-h: #c8d4e8;
-$minor-default:   #eaf0f8;
-$minor-default-h: #d5e1ef;
-$keysig-fill:     #1e293b;
+$major-default: color-mix(in srgb, var(--_chords-primary) 14%, var(--_chords-surface));
+$major-default-h: color-mix(in srgb, var(--_chords-primary) 24%, var(--_chords-surface));
+$minor-default: color-mix(in srgb, var(--_chords-secondary) 10%, var(--_chords-surface));
+$minor-default-h: color-mix(in srgb, var(--_chords-secondary) 20%, var(--_chords-surface));
+$keysig-fill: var(--_chords-text);
 
 // ─────────────────────────────────────────────
 // Host / Container
 // ─────────────────────────────────────────────
 :host {
+  --_chords-background: var(--chords-background, #f0f4f8);
+  --_chords-background-alt: var(--chords-background-alt, #f8fafc);
+  --_chords-surface: var(--chords-surface, #ffffff);
+  --_chords-surface-elevated: var(--chords-surface-elevated, #f8fafc);
+  --_chords-text: var(--chords-text, #1e293b);
+  --_chords-muted: var(--chords-muted, #64748b);
+  --_chords-primary: var(--chords-primary, #3b82f6);
+  --_chords-secondary: var(--chords-secondary, #06b6d4);
+  --_chords-highlight: var(--chords-highlight, #f59e0b);
+  --_chords-danger: var(--chords-danger, #a855f7);
+  --_chords-border: var(--chords-border, #e2e8f0);
+  --_chords-on-primary: var(--chords-on-primary, #ffffff);
+
   box-sizing: border-box;
   display: block;
   min-height: 100%;
@@ -88,7 +101,7 @@ $keysig-fill:     #1e293b;
 }
 
 .keysig-label {
-  fill: #94a3b8;
+  fill: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
   font-size: 12px;
   font-weight: 500;
   text-anchor: middle;
@@ -107,10 +120,12 @@ $keysig-fill:     #1e293b;
     transition: fill 0.18s ease;
   }
 
-  &:hover path { fill: $major-default-h; }
+  &:hover path {
+    fill: $major-default-h;
+  }
 
   .major-label {
-    fill: #334155;
+    fill: var(--_chords-text);
     font-size: 15px;
     font-weight: 700;
     text-anchor: middle;
@@ -120,15 +135,27 @@ $keysig-fill:     #1e293b;
   }
 
   &.tonic {
-    path { fill: $tonic-fill; }
-    &:hover path { fill: $tonic-hover; }
-    .major-label { fill: #fff; }
+    path {
+      fill: $tonic-fill;
+    }
+    &:hover path {
+      fill: $tonic-hover;
+    }
+    .major-label {
+      fill: var(--_chords-on-primary);
+    }
   }
 
   &.scale-major {
-    path { fill: $major-fill; }
-    &:hover path { fill: $major-hover; }
-    .major-label { fill: #fff; }
+    path {
+      fill: $major-fill;
+    }
+    &:hover path {
+      fill: $major-hover;
+    }
+    .major-label {
+      fill: var(--_chords-on-primary);
+    }
   }
 }
 
@@ -143,10 +170,12 @@ $keysig-fill:     #1e293b;
     transition: fill 0.18s ease;
   }
 
-  &:hover path { fill: $minor-default-h; }
+  &:hover path {
+    fill: $minor-default-h;
+  }
 
   .minor-label {
-    fill: #475569;
+    fill: color-mix(in srgb, var(--_chords-text) 78%, var(--_chords-muted));
     font-size: 12px;
     font-weight: 600;
     text-anchor: middle;
@@ -156,21 +185,39 @@ $keysig-fill:     #1e293b;
   }
 
   &.tonic {
-    path { fill: $tonic-fill; }
-    &:hover path { fill: $tonic-hover; }
-    .minor-label { fill: #fff; }
+    path {
+      fill: $tonic-fill;
+    }
+    &:hover path {
+      fill: $tonic-hover;
+    }
+    .minor-label {
+      fill: var(--_chords-on-primary);
+    }
   }
 
   &.scale-minor {
-    path { fill: $minor-fill; }
-    &:hover path { fill: $minor-hover; }
-    .minor-label { fill: #fff; }
+    path {
+      fill: $minor-fill;
+    }
+    &:hover path {
+      fill: $minor-hover;
+    }
+    .minor-label {
+      fill: var(--_chords-on-primary);
+    }
   }
 
   &.scale-diminished {
-    path { fill: #a855f7; }
-    &:hover path { fill: #9333ea; }
-    .minor-label { fill: #fff; }
+    path {
+      fill: var(--_chords-danger);
+    }
+    &:hover path {
+      fill: color-mix(in srgb, var(--_chords-danger) 82%, var(--_chords-text));
+    }
+    .minor-label {
+      fill: var(--_chords-on-primary);
+    }
   }
 }
 
@@ -182,15 +229,21 @@ $keysig-fill:     #1e293b;
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
-  fill: rgba(255, 255, 255, 0.85);
+  fill: color-mix(in srgb, var(--_chords-on-primary) 85%, transparent);
+}
+
+.outer-border {
+  fill: none;
+  stroke: var(--_chords-text);
+  stroke-width: 2.5;
 }
 
 // ── Center Circle ──
 .center-circle {
-  fill: #fff;
-  stroke: #e2e8f0;
+  fill: var(--_chords-surface);
+  stroke: var(--_chords-border);
   stroke-width: 2;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.08));
+  filter: drop-shadow(0 2px 10px color-mix(in srgb, var(--_chords-text) 8%, transparent));
 }
 
 .center-name {
@@ -217,14 +270,14 @@ $keysig-fill:     #1e293b;
   font-weight: 500;
   text-anchor: middle;
   dominant-baseline: auto;
-  fill: #94a3b8;
+  fill: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
 }
 
 .center-deselect {
   font-size: 8px;
   text-anchor: middle;
   dominant-baseline: auto;
-  fill: #cbd5e1;
+  fill: color-mix(in srgb, var(--_chords-muted) 42%, var(--_chords-background));
 }
 
 .center-hint {
@@ -232,14 +285,14 @@ $keysig-fill:     #1e293b;
   font-weight: 600;
   text-anchor: middle;
   dominant-baseline: auto;
-  fill: #94a3b8;
+  fill: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
 }
 
 .center-hint-sm {
   font-size: 11px;
   text-anchor: middle;
   dominant-baseline: auto;
-  fill: #cbd5e1;
+  fill: color-mix(in srgb, var(--_chords-muted) 42%, var(--_chords-background));
 }
 
 // ─────────────────────────────────────────────
@@ -267,10 +320,18 @@ $keysig-fill:     #1e293b;
       border-radius: 3px;
     }
 
-    &.tonic::before         { background: $tonic-fill; }
-    &.scale-major::before   { background: $major-fill; }
-    &.scale-minor::before   { background: $minor-fill; }
-    &.scale-diminished::before { background: #a855f7; }
+    &.tonic::before {
+      background: $tonic-fill;
+    }
+    &.scale-major::before {
+      background: $major-fill;
+    }
+    &.scale-minor::before {
+      background: $minor-fill;
+    }
+    &.scale-diminished::before {
+      background: var(--_chords-danger);
+    }
   }
 }
 
@@ -310,20 +371,22 @@ $keysig-fill:     #1e293b;
   min-width: 82px;
   flex-shrink: 0;
   text-align: center;
-  background: #e8edf5;
+  background: color-mix(in srgb, var(--_chords-text) 8%, var(--_chords-surface));
   border: 2px solid transparent;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--_chords-text) 10%, transparent);
   }
 
   .chord-numeral {
     font-size: 0.85rem;
     font-weight: 700;
     font-style: italic;
-    color: #64748b;
+    color: var(--_chords-muted);
   }
 
   .chord-name {
@@ -338,32 +401,41 @@ $keysig-fill:     #1e293b;
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #94a3b8;
+    color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
   }
 
   .chord-role {
     font-size: 0.7rem;
-    color: #94a3b8;
+    color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
     margin-top: 2px;
   }
 
   // State-based card colors
   &.tonic {
-    background: #fef9ec;
+    background: color-mix(in srgb, var(--_chords-highlight) 10%, var(--_chords-surface));
     border-color: $tonic-fill;
-    .chord-numeral, .chord-name { color: #92400e; }
+    .chord-numeral,
+    .chord-name {
+      color: color-mix(in srgb, var(--_chords-highlight) 58%, var(--_chords-text));
+    }
   }
 
   &.scale-major {
-    background: #eff6ff;
+    background: color-mix(in srgb, var(--_chords-primary) 9%, var(--_chords-surface));
     border-color: $major-fill;
-    .chord-numeral, .chord-name { color: #1e40af; }
+    .chord-numeral,
+    .chord-name {
+      color: color-mix(in srgb, var(--_chords-primary) 65%, var(--_chords-text));
+    }
   }
 
   &.scale-diminished {
-    background: #fdf4ff;
-    border-color: #a855f7;
-    .chord-numeral, .chord-name { color: #6b21a8; }
+    background: color-mix(in srgb, var(--_chords-danger) 9%, var(--_chords-surface));
+    border-color: var(--_chords-danger);
+    .chord-numeral,
+    .chord-name {
+      color: color-mix(in srgb, var(--_chords-danger) 65%, var(--_chords-text));
+    }
   }
 }
 
@@ -393,15 +465,17 @@ $keysig-fill:     #1e293b;
 }
 
 .progression-card {
-  background: #fff;
-  border: 1.5px solid #e2e8f0;
+  background: var(--_chords-surface);
+  border: 1.5px solid var(--_chords-border);
   border-radius: 14px;
   padding: 16px 18px;
   text-align: left;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--_chords-text) 8%, transparent);
     transform: translateY(-2px);
   }
 }
@@ -431,7 +505,7 @@ $keysig-fill:     #1e293b;
 .prog-genre {
   margin-left: auto;
   font-size: 0.7rem;
-  color: #94a3b8;
+  color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
   font-style: italic;
 }
 
@@ -456,11 +530,11 @@ $keysig-fill:     #1e293b;
   gap: 6px;
   font-size: 0.75rem;
   font-style: italic;
-  color: #94a3b8;
+  color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
 }
 
 .prog-arrow {
-  color: #cbd5e1;
+  color: color-mix(in srgb, var(--_chords-muted) 42%, var(--_chords-background));
   font-size: 0.8rem;
 }
 
@@ -468,6 +542,11 @@ $keysig-fill:     #1e293b;
 // Responsive
 // ─────────────────────────────────────────────
 @media (max-width: 480px) {
-  .page-header h1 { font-size: 1.5rem; }
-  .chord-card { min-width: 75px; padding: 10px 12px; }
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+  .chord-card {
+    min-width: 75px;
+    padding: 10px 12px;
+  }
 }

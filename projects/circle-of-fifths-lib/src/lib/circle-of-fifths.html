@@ -1,35 +1,43 @@
 <div class="page">
   <header class="page-header">
-    <h1>Circle of Fifths</h1>
-    <p>Click any major or minor key to highlight its diatonic chords</p>
+    <h1>{{ text().title }}</h1>
+    <p>{{ text().subtitle }}</p>
   </header>
 
   <div class="circle-wrapper">
-    <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-label="Circle of Fifths">
-
+    <svg
+      viewBox="0 0 600 600"
+      xmlns="http://www.w3.org/2000/svg"
+      [attr.aria-label]="text().ariaLabel"
+    >
       <!-- ── Key Signature Ring ── -->
       @for (key of keys; track key.index) {
-        <path
-          [attr.d]="arcPath(KEY_SIG.inner, KEY_SIG.outer, key.index)"
-          class="keysig-segment" />
+        <path [attr.d]="arcPath(KEY_SIG.inner, KEY_SIG.outer, key.index)" class="keysig-segment" />
         <text
           [attr.x]="textPos((KEY_SIG.inner + KEY_SIG.outer) / 2, key.index).x"
           [attr.y]="textPos((KEY_SIG.inner + KEY_SIG.outer) / 2, key.index).y"
-          class="keysig-label">
+          class="keysig-label"
+        >
           {{ getAccidentalText(key) }}
         </text>
       }
 
       <!-- ── Major Keys Ring ── -->
       @for (key of keys; track key.index) {
-        <g [ngClass]="['major-group', getMajorState(key.index)]"
-           (click)="selectKey(key.index, 'major')">
+        <g
+          [ngClass]="['major-group', getMajorState(key.index)]"
+          (click)="selectKey(key.index, 'major')"
+        >
           <path [attr.d]="arcPath(MAJOR.inner, MAJOR.outer, key.index)" />
 
           <text
             [attr.x]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).x"
-            [attr.y]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).y + (getMajorRole(key.index) ? -9 : 0)"
-            class="major-label">
+            [attr.y]="
+              textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).y +
+              (getMajorRole(key.index) ? -9 : 0)
+            "
+            class="major-label"
+          >
             {{ key.major }}
           </text>
 
@@ -37,7 +45,8 @@
             <text
               [attr.x]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).x"
               [attr.y]="textPos((MAJOR.inner + MAJOR.outer) / 2, key.index).y + 11"
-              class="role-label">
+              class="role-label"
+            >
               {{ getMajorRole(key.index) }}
             </text>
           }
@@ -46,14 +55,20 @@
 
       <!-- ── Minor Keys Ring ── -->
       @for (key of keys; track key.index) {
-        <g [ngClass]="['minor-group', getMinorState(key.index)]"
-           (click)="selectKey(key.index, 'minor')">
+        <g
+          [ngClass]="['minor-group', getMinorState(key.index)]"
+          (click)="selectKey(key.index, 'minor')"
+        >
           <path [attr.d]="arcPath(MINOR.inner, MINOR.outer, key.index)" />
 
           <text
             [attr.x]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).x"
-            [attr.y]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).y + (getMinorRole(key.index) ? -8 : 0)"
-            class="minor-label">
+            [attr.y]="
+              textPos((MINOR.inner + MINOR.outer) / 2, key.index).y +
+              (getMinorRole(key.index) ? -8 : 0)
+            "
+            class="minor-label"
+          >
             {{ key.minor }}
           </text>
 
@@ -61,7 +76,8 @@
             <text
               [attr.x]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).x"
               [attr.y]="textPos((MINOR.inner + MINOR.outer) / 2, key.index).y + 9"
-              class="role-label">
+              class="role-label"
+            >
               {{ getMinorRole(key.index) }}
             </text>
           }
@@ -69,7 +85,7 @@
       }
 
       <!-- ── Outer border ── -->
-      <circle cx="300" cy="300" r="289" fill="none" stroke="#1e293b" stroke-width="2.5" />
+      <circle cx="300" cy="300" r="289" class="outer-border" />
 
       <!-- ── Center Circle ── -->
       <circle cx="300" cy="300" r="99" class="center-circle" />
@@ -78,27 +94,26 @@
         <text x="300" y="283" class="center-name">{{ selectedInfo.name }}</text>
         <text x="300" y="304" class="center-scale">{{ selectedInfo.scale }}</text>
         <text x="300" y="322" class="center-relative">{{ selectedInfo.relativeKey }}</text>
-        <text x="300" y="338" class="center-deselect">↩ click to deselect</text>
+        <text x="300" y="338" class="center-deselect">{{ text().deselect }}</text>
       } @else {
-        <text x="300" y="293" class="center-hint">Click a key</text>
-        <text x="300" y="312" class="center-hint-sm">to see its chords</text>
+        <text x="300" y="293" class="center-hint">{{ text().clickKey }}</text>
+        <text x="300" y="312" class="center-hint-sm">{{ text().seeChords }}</text>
       }
-
     </svg>
   </div>
 
   <!-- ── Legend ── -->
   <div class="legend">
-    <span class="legend-item tonic">Tonic (I / i)</span>
-    <span class="legend-item scale-major">Major chords (IV, V)</span>
-    <span class="legend-item scale-minor">Minor chords (ii, iii, vi)</span>
-    <span class="legend-item scale-diminished">Diminished (vii° / ii°)</span>
+    <span class="legend-item tonic">{{ text().tonicLegend }}</span>
+    <span class="legend-item scale-major">{{ text().majorLegend }}</span>
+    <span class="legend-item scale-minor">{{ text().minorLegend }}</span>
+    <span class="legend-item scale-diminished">{{ text().diminishedLegend }}</span>
   </div>
 
   <!-- ── Chord Table ── -->
   @if (selectedInfo && chordTable.length) {
     <section class="chord-section">
-      <h2>{{ selectedInfo.fullName }} — Diatonic Chords</h2>
+      <h2>{{ selectedInfo.fullName }} — {{ text().diatonicChords }}</h2>
       <p class="relative-label">{{ selectedInfo.relativeKey }}</p>
       <div class="chord-grid">
         @for (row of chordTable; track row.numeral) {
@@ -116,7 +131,7 @@
   <!-- ── Chord Progressions ── -->
   @if (progressions.length) {
     <section class="progressions-section">
-      <h2>Common Progressions in {{ selectedInfo?.fullName }}</h2>
+      <h2>{{ text().commonProgressions }} {{ selectedInfo?.fullName }}</h2>
       <div class="progression-list">
         @for (prog of progressions; track prog.name) {
           <div class="progression-card">
@@ -128,13 +143,17 @@
             <div class="prog-chords">
               @for (chord of prog.chords; track $index; let last = $last) {
                 <span class="prog-chord">{{ chord }}</span>
-                @if (!last) { <span class="prog-arrow">→</span> }
+                @if (!last) {
+                  <span class="prog-arrow">→</span>
+                }
               }
             </div>
             <div class="prog-numerals">
               @for (num of prog.numerals; track $index; let last = $last) {
                 <span>{{ num }}</span>
-                @if (!last) { <span class="prog-arrow">→</span> }
+                @if (!last) {
+                  <span class="prog-arrow">→</span>
+                }
               }
             </div>
           </div>

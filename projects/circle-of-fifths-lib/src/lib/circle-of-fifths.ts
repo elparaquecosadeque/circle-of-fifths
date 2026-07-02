@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 interface CircleKey {
@@ -12,7 +12,7 @@ interface CircleKey {
 interface ChordRow {
   numeral: string;
   chord: string;
-  chordType: 'major' | 'minor' | 'diminished';
+  chordType: string;
   role: string;
   state: 'tonic' | 'scale-major' | 'scale-minor' | 'scale-diminished';
 }
@@ -25,19 +25,131 @@ interface Progression {
   chords: string[];
 }
 
-const MAJOR_PROGRESSIONS: Omit<Progression, 'chords'>[] = [
-  { name: 'Anthemic',    mood: '😄 Joyful',      genre: 'Folk, Rock',    numerals: ['I','IV','V','I']      },
-  { name: 'Hopeful',     mood: '✨ Hopeful',      genre: 'Pop, Indie',    numerals: ['I','V','vi','IV']     },
-  { name: 'Melancholic', mood: '😢 Emotional',    genre: 'Ballads, Pop',  numerals: ['vi','IV','I','V']     },
-  { name: 'Cinematic',   mood: '🎬 Tense',        genre: 'Film, Jazz',    numerals: ['ii','V','vii°','I']   },
-];
+type Language = 'en' | 'es';
+type LocalizedText = Record<Language, string>;
 
-const MINOR_PROGRESSIONS: Omit<Progression, 'chords'>[] = [
-  { name: 'Brooding',    mood: '🌑 Dark',         genre: 'Rock, Metal',   numerals: ['i','VII','VI','VII']  },
-  { name: 'Haunting',    mood: '👻 Mysterious',   genre: 'Film, Gothic',  numerals: ['i','iv','VII','III']  },
-  { name: 'Driving',     mood: '⚡ Urgent',        genre: 'Pop, EDM',      numerals: ['i','VI','III','VII']  },
-  { name: 'Wistful',     mood: '🌙 Wistful',      genre: 'Cinematic',     numerals: ['i','v','VI','VII']    },
-];
+interface ProgressionDefinition {
+  name: LocalizedText;
+  mood: LocalizedText;
+  genre: LocalizedText;
+  numerals: string[];
+}
+
+const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
+  major: [
+    {
+      name: { en: 'Anthemic', es: 'Épica' },
+      mood: { en: '😄 Joyful', es: '😄 Alegre' },
+      genre: { en: 'Folk, Rock', es: 'Folk, rock' },
+      numerals: ['I', 'IV', 'V', 'I'],
+    },
+    {
+      name: { en: 'Hopeful', es: 'Esperanzadora' },
+      mood: { en: '✨ Hopeful', es: '✨ Esperanzadora' },
+      genre: { en: 'Pop, Indie', es: 'Pop, indie' },
+      numerals: ['I', 'V', 'vi', 'IV'],
+    },
+    {
+      name: { en: 'Melancholic', es: 'Melancólica' },
+      mood: { en: '😢 Emotional', es: '😢 Emocional' },
+      genre: { en: 'Ballads, Pop', es: 'Baladas, pop' },
+      numerals: ['vi', 'IV', 'I', 'V'],
+    },
+    {
+      name: { en: 'Cinematic', es: 'Cinemática' },
+      mood: { en: '🎬 Tense', es: '🎬 Tensa' },
+      genre: { en: 'Film, Jazz', es: 'Cine, jazz' },
+      numerals: ['ii', 'V', 'vii°', 'I'],
+    },
+  ],
+  minor: [
+    {
+      name: { en: 'Brooding', es: 'Sombría' },
+      mood: { en: '🌑 Dark', es: '🌑 Oscura' },
+      genre: { en: 'Rock, Metal', es: 'Rock, metal' },
+      numerals: ['i', 'VII', 'VI', 'VII'],
+    },
+    {
+      name: { en: 'Haunting', es: 'Inquietante' },
+      mood: { en: '👻 Mysterious', es: '👻 Misteriosa' },
+      genre: { en: 'Film, Gothic', es: 'Cine, gótico' },
+      numerals: ['i', 'iv', 'VII', 'III'],
+    },
+    {
+      name: { en: 'Driving', es: 'Impulsora' },
+      mood: { en: '⚡ Urgent', es: '⚡ Urgente' },
+      genre: { en: 'Pop, EDM', es: 'Pop, EDM' },
+      numerals: ['i', 'VI', 'III', 'VII'],
+    },
+    {
+      name: { en: 'Wistful', es: 'Nostálgica' },
+      mood: { en: '🌙 Wistful', es: '🌙 Nostálgica' },
+      genre: { en: 'Cinematic', es: 'Cinemática' },
+      numerals: ['i', 'v', 'VI', 'VII'],
+    },
+  ],
+};
+
+const COPY = {
+  en: {
+    title: 'Circle of Fifths',
+    subtitle: 'Click any major or minor key to highlight its diatonic chords',
+    ariaLabel: 'Circle of Fifths',
+    clickKey: 'Click a key',
+    seeChords: 'to see its chords',
+    deselect: '↩ click to deselect',
+    tonicLegend: 'Tonic (I / i)',
+    majorLegend: 'Major chords (IV, V)',
+    minorLegend: 'Minor chords (ii, iii, vi)',
+    diminishedLegend: 'Diminished (vii° / ii°)',
+    diatonicChords: 'Diatonic Chords',
+    commonProgressions: 'Common Progressions in',
+    major: 'Major',
+    minor: 'Minor',
+    diminished: 'diminished',
+    relativeMinor: 'Relative minor',
+    relativeMajor: 'Relative major',
+    roles: {
+      tonic: 'Tonic',
+      supertonic: 'Supertonic',
+      mediant: 'Mediant',
+      subdominant: 'Subdominant',
+      dominant: 'Dominant',
+      submediant: 'Submediant',
+      leadingTone: 'Leading Tone',
+      subtonic: 'Subtonic',
+    },
+  },
+  es: {
+    title: 'Círculo de quintas',
+    subtitle: 'Haz clic en una tonalidad mayor o menor para resaltar sus acordes diatónicos',
+    ariaLabel: 'Círculo de quintas',
+    clickKey: 'Haz clic en una tonalidad',
+    seeChords: 'para ver sus acordes',
+    deselect: '↩ haz clic para deseleccionar',
+    tonicLegend: 'Tónica (I / i)',
+    majorLegend: 'Acordes mayores (IV, V)',
+    minorLegend: 'Acordes menores (ii, iii, vi)',
+    diminishedLegend: 'Disminuido (vii° / ii°)',
+    diatonicChords: 'Acordes diatónicos',
+    commonProgressions: 'Progresiones comunes en',
+    major: 'Mayor',
+    minor: 'Menor',
+    diminished: 'disminuido',
+    relativeMinor: 'Relativa menor',
+    relativeMajor: 'Relativa mayor',
+    roles: {
+      tonic: 'Tónica',
+      supertonic: 'Supertónica',
+      mediant: 'Mediante',
+      subdominant: 'Subdominante',
+      dominant: 'Dominante',
+      submediant: 'Submediante',
+      leadingTone: 'Sensible',
+      subtonic: 'Subtónica',
+    },
+  },
+} as const;
 
 @Component({
   selector: 'the-chords-circle-of-fifths',
@@ -45,8 +157,11 @@ const MINOR_PROGRESSIONS: Omit<Progression, 'chords'>[] = [
   imports: [NgClass],
   templateUrl: './circle-of-fifths.html',
   styleUrl: './circle-of-fifths.scss',
+  host: { '[attr.lang]': 'language()' },
 })
 export class CircleOfFifthsComponent {
+  readonly language = input<Language>('en');
+  readonly text = computed(() => COPY[this.language()]);
   readonly CX = 300;
   readonly CY = 300;
 
@@ -55,18 +170,18 @@ export class CircleOfFifthsComponent {
   readonly MINOR = { inner: 102, outer: 172 };
 
   readonly keys: CircleKey[] = [
-    { index: 0,  major: 'C',   minor: 'Am',   sharps: 0, flats: 0 },
-    { index: 1,  major: 'G',   minor: 'Em',   sharps: 1, flats: 0 },
-    { index: 2,  major: 'D',   minor: 'Bm',   sharps: 2, flats: 0 },
-    { index: 3,  major: 'A',   minor: 'F♯m',  sharps: 3, flats: 0 },
-    { index: 4,  major: 'E',   minor: 'C♯m',  sharps: 4, flats: 0 },
-    { index: 5,  major: 'B',   minor: 'G♯m',  sharps: 5, flats: 0 },
-    { index: 6,  major: 'F♯',  minor: 'D♯m',  sharps: 6, flats: 0 },
-    { index: 7,  major: 'D♭',  minor: 'B♭m',  sharps: 0, flats: 5 },
-    { index: 8,  major: 'A♭',  minor: 'Fm',   sharps: 0, flats: 4 },
-    { index: 9,  major: 'E♭',  minor: 'Cm',   sharps: 0, flats: 3 },
-    { index: 10, major: 'B♭',  minor: 'Gm',   sharps: 0, flats: 2 },
-    { index: 11, major: 'F',   minor: 'Dm',   sharps: 0, flats: 1 },
+    { index: 0, major: 'C', minor: 'Am', sharps: 0, flats: 0 },
+    { index: 1, major: 'G', minor: 'Em', sharps: 1, flats: 0 },
+    { index: 2, major: 'D', minor: 'Bm', sharps: 2, flats: 0 },
+    { index: 3, major: 'A', minor: 'F♯m', sharps: 3, flats: 0 },
+    { index: 4, major: 'E', minor: 'C♯m', sharps: 4, flats: 0 },
+    { index: 5, major: 'B', minor: 'G♯m', sharps: 5, flats: 0 },
+    { index: 6, major: 'F♯', minor: 'D♯m', sharps: 6, flats: 0 },
+    { index: 7, major: 'D♭', minor: 'B♭m', sharps: 0, flats: 5 },
+    { index: 8, major: 'A♭', minor: 'Fm', sharps: 0, flats: 4 },
+    { index: 9, major: 'E♭', minor: 'Cm', sharps: 0, flats: 3 },
+    { index: 10, major: 'B♭', minor: 'Gm', sharps: 0, flats: 2 },
+    { index: 11, major: 'F', minor: 'Dm', sharps: 0, flats: 1 },
   ];
 
   selectedIndex = signal<number | null>(null);
@@ -151,11 +266,16 @@ export class CircleOfFifthsComponent {
     const mid = index * 30 - 90;
     const s = (mid - 15 + gap) * (Math.PI / 180);
     const e = (mid + 15 - gap) * (Math.PI / 180);
-    const cx = this.CX, cy = this.CY;
-    const x1 = cx + outerR * Math.cos(s), y1 = cy + outerR * Math.sin(s);
-    const x2 = cx + outerR * Math.cos(e), y2 = cy + outerR * Math.sin(e);
-    const x3 = cx + innerR * Math.cos(e), y3 = cy + innerR * Math.sin(e);
-    const x4 = cx + innerR * Math.cos(s), y4 = cy + innerR * Math.sin(s);
+    const cx = this.CX,
+      cy = this.CY;
+    const x1 = cx + outerR * Math.cos(s),
+      y1 = cy + outerR * Math.sin(s);
+    const x2 = cx + outerR * Math.cos(e),
+      y2 = cy + outerR * Math.sin(e);
+    const x3 = cx + innerR * Math.cos(e),
+      y3 = cy + innerR * Math.sin(e);
+    const x4 = cx + innerR * Math.cos(s),
+      y4 = cy + innerR * Math.sin(s);
     const f = (n: number) => n.toFixed(2);
     return `M${f(x1)} ${f(y1)} A${outerR} ${outerR} 0 0 1 ${f(x2)} ${f(y2)} L${f(x3)} ${f(y3)} A${innerR} ${innerR} 0 0 0 ${f(x4)} ${f(y4)}Z`;
   }
@@ -185,13 +305,16 @@ export class CircleOfFifthsComponent {
     const type = this.selectedType();
     if (idx === null || type === null) return null;
     const key = this.keys[idx];
+    const copy = this.text();
+    const scale = type === 'major' ? copy.major : copy.minor;
     return {
       name: type === 'major' ? key.major : key.minor,
-      scale: type === 'major' ? 'Major' : 'Minor',
-      fullName: type === 'major' ? `${key.major} Major` : `${key.minor} Minor`,
-      relativeKey: type === 'major'
-        ? `Relative minor: ${key.minor}`
-        : `Relative major: ${key.major}`,
+      scale,
+      fullName: `${type === 'major' ? key.major : key.minor} ${scale}`,
+      relativeKey:
+        type === 'major'
+          ? `${copy.relativeMinor}: ${key.minor}`
+          : `${copy.relativeMajor}: ${key.major}`,
     };
   }
 
@@ -202,26 +325,111 @@ export class CircleOfFifthsComponent {
 
     const prev = (idx - 1 + 12) % 12;
     const next = (idx + 1) % 12;
+    const copy = this.text();
 
     if (type === 'major') {
       return [
-        { numeral: 'I',   chord: this.keys[idx].major,  chordType: 'major', role: 'Tonic',       state: 'tonic' },
-        { numeral: 'ii',  chord: this.keys[prev].minor, chordType: 'minor', role: 'Supertonic',  state: 'scale-minor' },
-        { numeral: 'iii', chord: this.keys[next].minor, chordType: 'minor', role: 'Mediant',     state: 'scale-minor' },
-        { numeral: 'IV',  chord: this.keys[prev].major, chordType: 'major', role: 'Subdominant', state: 'scale-major' },
-        { numeral: 'V',   chord: this.keys[next].major, chordType: 'major', role: 'Dominant',    state: 'scale-major' },
-        { numeral: 'vi',   chord: this.keys[idx].minor,  chordType: 'minor', role: 'Submediant',  state: 'scale-minor' },
-        { numeral: 'vii°', chord: this.dimChord(idx),    chordType: 'diminished', role: 'Leading Tone', state: 'scale-diminished' },
+        {
+          numeral: 'I',
+          chord: this.keys[idx].major,
+          chordType: copy.major,
+          role: copy.roles.tonic,
+          state: 'tonic',
+        },
+        {
+          numeral: 'ii',
+          chord: this.keys[prev].minor,
+          chordType: copy.minor,
+          role: copy.roles.supertonic,
+          state: 'scale-minor',
+        },
+        {
+          numeral: 'iii',
+          chord: this.keys[next].minor,
+          chordType: copy.minor,
+          role: copy.roles.mediant,
+          state: 'scale-minor',
+        },
+        {
+          numeral: 'IV',
+          chord: this.keys[prev].major,
+          chordType: copy.major,
+          role: copy.roles.subdominant,
+          state: 'scale-major',
+        },
+        {
+          numeral: 'V',
+          chord: this.keys[next].major,
+          chordType: copy.major,
+          role: copy.roles.dominant,
+          state: 'scale-major',
+        },
+        {
+          numeral: 'vi',
+          chord: this.keys[idx].minor,
+          chordType: copy.minor,
+          role: copy.roles.submediant,
+          state: 'scale-minor',
+        },
+        {
+          numeral: 'vii°',
+          chord: this.dimChord(idx),
+          chordType: copy.diminished,
+          role: copy.roles.leadingTone,
+          state: 'scale-diminished',
+        },
       ];
     } else {
       return [
-        { numeral: 'i',   chord: this.keys[idx].minor,  chordType: 'minor', role: 'Tonic',       state: 'tonic' },
-        { numeral: 'iv',  chord: this.keys[prev].minor, chordType: 'minor', role: 'Subdominant', state: 'scale-minor' },
-        { numeral: 'v',   chord: this.keys[next].minor, chordType: 'minor', role: 'Dominant',    state: 'scale-minor' },
-        { numeral: 'III', chord: this.keys[idx].major,  chordType: 'major', role: 'Mediant',     state: 'scale-major' },
-        { numeral: 'VI',  chord: this.keys[prev].major, chordType: 'major', role: 'Submediant',  state: 'scale-major' },
-        { numeral: 'VII',  chord: this.keys[next].major, chordType: 'major', role: 'Subtonic',    state: 'scale-major' },
-        { numeral: 'ii°',  chord: this.dimChord(idx),    chordType: 'diminished', role: 'Supertonic', state: 'scale-diminished' },
+        {
+          numeral: 'i',
+          chord: this.keys[idx].minor,
+          chordType: copy.minor,
+          role: copy.roles.tonic,
+          state: 'tonic',
+        },
+        {
+          numeral: 'iv',
+          chord: this.keys[prev].minor,
+          chordType: copy.minor,
+          role: copy.roles.subdominant,
+          state: 'scale-minor',
+        },
+        {
+          numeral: 'v',
+          chord: this.keys[next].minor,
+          chordType: copy.minor,
+          role: copy.roles.dominant,
+          state: 'scale-minor',
+        },
+        {
+          numeral: 'III',
+          chord: this.keys[idx].major,
+          chordType: copy.major,
+          role: copy.roles.mediant,
+          state: 'scale-major',
+        },
+        {
+          numeral: 'VI',
+          chord: this.keys[prev].major,
+          chordType: copy.major,
+          role: copy.roles.submediant,
+          state: 'scale-major',
+        },
+        {
+          numeral: 'VII',
+          chord: this.keys[next].major,
+          chordType: copy.major,
+          role: copy.roles.subtonic,
+          state: 'scale-major',
+        },
+        {
+          numeral: 'ii°',
+          chord: this.dimChord(idx),
+          chordType: copy.diminished,
+          role: copy.roles.supertonic,
+          state: 'scale-diminished',
+        },
       ];
     }
   }
@@ -229,8 +437,15 @@ export class CircleOfFifthsComponent {
   get progressions(): Progression[] {
     const table = this.chordTable;
     if (!table.length) return [];
-    const lookup = new Map(table.map(r => [r.numeral, r.chord]));
-    const defs = this.selectedType() === 'major' ? MAJOR_PROGRESSIONS : MINOR_PROGRESSIONS;
-    return defs.map(d => ({ ...d, chords: d.numerals.map(n => lookup.get(n) ?? n) }));
+    const lookup = new Map(table.map((r) => [r.numeral, r.chord]));
+    const language = this.language();
+    const defs = PROGRESSIONS[this.selectedType() === 'major' ? 'major' : 'minor'];
+    return defs.map((definition) => ({
+      name: definition.name[language],
+      mood: definition.mood[language],
+      genre: definition.genre[language],
+      numerals: definition.numerals,
+      chords: definition.numerals.map((numeral) => lookup.get(numeral) ?? numeral),
+    }));
   }
 }

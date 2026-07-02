@@ -19,4 +19,11 @@ describe('CircleOfFifthsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('renders Spanish content when requested', async () => {
+    fixture.componentRef.setInput('language', 'es');
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.textContent).toContain('Círculo de quintas');
+  });
 });

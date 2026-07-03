@@ -2,6 +2,12 @@
 
 Standalone Angular 22 component for exploring keys, diatonic chords, and common progressions with an interactive circle of fifths.
 
+[View the package on npm](https://www.npmjs.com/package/@gblp/circle-of-fifths)
+
+```bash
+npm install @gblp/circle-of-fifths
+```
+
 ```ts
 import { Component } from '@angular/core';
 import { CircleOfFifthsComponent } from '@gblp/circle-of-fifths';

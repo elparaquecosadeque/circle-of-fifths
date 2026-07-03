@@ -2,6 +2,14 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.3.
 
+## npm package
+
+The reusable Angular component is published as [@gblp/circle-of-fifths](https://www.npmjs.com/package/@gblp/circle-of-fifths).
+
+```bash
+npm install @gblp/circle-of-fifths
+```
+
 ## Development server
 
 To start a local development server, run:

@@ -163,6 +163,8 @@ const COPY = {
     chorus: 'Chorus',
     bridge: 'Bridge',
     outro: 'Outro',
+    verse: 'Verse',
+    copy: 'Copy',
     expand: 'Expand',
     collapse: 'Collapse',
     major: 'Major',
@@ -198,6 +200,8 @@ const COPY = {
     chorus: 'Coro',
     bridge: 'Puente',
     outro: 'Final',
+    verse: 'Estrofa',
+    copy: 'Copiar',
     expand: 'Expandir',
     collapse: 'Colapsar',
     major: 'Mayor',
@@ -292,6 +296,13 @@ export class CircleOfFifthsComponent {
       next.has(name) ? next.delete(name) : next.add(name);
       return next;
     });
+  }
+
+  copyChords(prog: { name: string; chords: string[]; sections: { label: string; chords: string[] }[] }): void {
+    const text = this.expandedCards().has(prog.name)
+      ? [`${this.text().verse}: ${prog.chords.join(', ')}`, ...prog.sections.map((s) => `${s.label}: ${s.chords.join(', ')}`)].join('; ')
+      : prog.chords.join(', ');
+    navigator.clipboard.writeText(text);
   }
 
   getMajorState(index: number): string {

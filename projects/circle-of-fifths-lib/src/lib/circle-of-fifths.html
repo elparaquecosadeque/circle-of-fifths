@@ -163,6 +163,9 @@
               <button class="btn-expand" (click)="toggleCard(prog.name)">
                 {{ expandedCards().has(prog.name) ? text().collapse : text().expand }}
               </button>
+              <button class="btn-expand" (click)="copyChords(prog)">
+                {{ text().copy }}
+              </button>
             </div>
             @if (expandedCards().has(prog.name)) {
               <div class="prog-sections">

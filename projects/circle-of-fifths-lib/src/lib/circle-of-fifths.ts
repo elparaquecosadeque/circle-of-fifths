@@ -61,6 +61,30 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
       genre: { en: 'Film, Jazz', es: 'Cine, jazz' },
       numerals: ['ii', 'V', 'vii°', 'I'],
     },
+    {
+      name: { en: 'Nostalgic', es: 'Retro' },
+      mood: { en: '🕺 Retro', es: '🕺 Retro' },
+      genre: { en: 'Doo-Wop, Pop', es: 'Doo-Wop, pop' },
+      numerals: ['I', 'vi', 'IV', 'V'],
+    },
+    {
+      name: { en: 'Dreamy', es: 'Soñadora' },
+      mood: { en: '🌸 Floaty', es: '🌸 Etérea' },
+      genre: { en: 'J-Pop, Anime', es: 'J-Pop, anime' },
+      numerals: ['IV', 'V', 'iii', 'vi'],
+    },
+    {
+      name: { en: 'Gospel', es: 'Gospel' },
+      mood: { en: '🙏 Uplifting', es: '🙏 Elevadora' },
+      genre: { en: 'Gospel, Soul', es: 'Gospel, soul' },
+      numerals: ['I', 'IV', 'ii', 'V'],
+    },
+    {
+      name: { en: 'Bittersweet', es: 'Agridulce' },
+      mood: { en: '🍂 Bittersweet', es: '🍂 Agridulce' },
+      genre: { en: 'Alt Rock, Indie', es: 'Rock alternativo, indie' },
+      numerals: ['I', 'iii', 'IV', 'V'],
+    },
   ],
   minor: [
     {
@@ -87,6 +111,30 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
       genre: { en: 'Cinematic', es: 'Cinemática' },
       numerals: ['i', 'v', 'VI', 'VII'],
     },
+    {
+      name: { en: 'Flamenco', es: 'Flamenco' },
+      mood: { en: '🌹 Passionate', es: '🌹 Apasionado' },
+      genre: { en: 'Flamenco, World', es: 'Flamenco, mundial' },
+      numerals: ['i', 'VII', 'VI', 'iv'],
+    },
+    {
+      name: { en: 'Tragic', es: 'Trágica' },
+      mood: { en: '💔 Tragic', es: '💔 Trágica' },
+      genre: { en: 'Classical, Drama', es: 'Clásica, drama' },
+      numerals: ['i', 'iv', 'v', 'i'],
+    },
+    {
+      name: { en: 'Epic', es: 'Épica' },
+      mood: { en: '⚔️ Heroic', es: '⚔️ Heroico' },
+      genre: { en: 'Epic, Orchestral', es: 'Épica, orquestal' },
+      numerals: ['i', 'III', 'VII', 'VI'],
+    },
+    {
+      name: { en: 'Ethereal', es: 'Etérea' },
+      mood: { en: '🌊 Hypnotic', es: '🌊 Hipnótica' },
+      genre: { en: 'Ambient, Post-Rock', es: 'Ambient, post-rock' },
+      numerals: ['i', 'VI', 'iv', 'VII'],
+    },
   ],
 };
 
@@ -104,6 +152,7 @@ const COPY = {
     diminishedLegend: 'Diminished (vii° / ii°)',
     diatonicChords: 'Diatonic Chords',
     commonProgressions: 'Common Progressions in',
+    generateProgressions: 'Shuffle',
     major: 'Major',
     minor: 'Minor',
     diminished: 'diminished',
@@ -133,6 +182,7 @@ const COPY = {
     diminishedLegend: 'Disminuido (vii° / ii°)',
     diatonicChords: 'Acordes diatónicos',
     commonProgressions: 'Progresiones comunes en',
+    generateProgressions: 'Generar nuevos',
     major: 'Mayor',
     minor: 'Menor',
     diminished: 'disminuido',
@@ -186,6 +236,7 @@ export class CircleOfFifthsComponent {
 
   selectedIndex = signal<number | null>(null);
   selectedType = signal<'major' | 'minor' | null>(null);
+  readonly activeProgressionDefs = signal<ProgressionDefinition[] | null>(null);
 
   private get slice() {
     const idx = this.selectedIndex();
@@ -205,6 +256,14 @@ export class CircleOfFifthsComponent {
       this.selectedIndex.set(index);
       this.selectedType.set(type);
     }
+    this.activeProgressionDefs.set(null);
+  }
+
+  randomizeProgressions(): void {
+    const type = this.selectedType();
+    if (!type) return;
+    // ponytail: sort-shuffle is fine for UI randomness
+    this.activeProgressionDefs.set([...PROGRESSIONS[type]].sort(() => Math.random() - 0.5).slice(0, 4));
   }
 
   getMajorState(index: number): string {
@@ -439,7 +498,8 @@ export class CircleOfFifthsComponent {
     if (!table.length) return [];
     const lookup = new Map(table.map((r) => [r.numeral, r.chord]));
     const language = this.language();
-    const defs = PROGRESSIONS[this.selectedType() === 'major' ? 'major' : 'minor'];
+    const type = this.selectedType() === 'major' ? 'major' : 'minor';
+    const defs = this.activeProgressionDefs() ?? PROGRESSIONS[type].slice(0, 4);
     return defs.map((definition) => ({
       name: definition.name[language],
       mood: definition.mood[language],

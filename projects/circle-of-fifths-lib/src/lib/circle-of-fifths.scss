@@ -445,12 +445,39 @@ $keysig-fill: var(--_chords-text);
 .progressions-section {
   margin-top: 36px;
   text-align: center;
+}
+
+.progressions-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 
   h2 {
-    margin: 0 0 20px;
+    margin: 0;
     font-size: 1.25rem;
     font-weight: 700;
     color: $color-text;
+  }
+}
+
+.btn-randomize {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1.5px solid var(--_chords-primary);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--_chords-primary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--_chords-primary);
+    color: var(--_chords-on-primary);
   }
 }
 

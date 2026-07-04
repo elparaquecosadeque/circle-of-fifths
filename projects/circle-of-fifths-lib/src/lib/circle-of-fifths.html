@@ -131,7 +131,10 @@
   <!-- ── Chord Progressions ── -->
   @if (progressions.length) {
     <section class="progressions-section">
-      <h2>{{ text().commonProgressions }} {{ selectedInfo?.fullName }}</h2>
+      <div class="progressions-header">
+        <h2>{{ text().commonProgressions }} {{ selectedInfo?.fullName }}</h2>
+        <button class="btn-randomize" (click)="randomizeProgressions()">{{ text().generateProgressions }}</button>
+      </div>
       <div class="progression-list">
         @for (prog of progressions; track prog.name) {
           <div class="progression-card">

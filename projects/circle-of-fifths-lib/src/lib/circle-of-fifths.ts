@@ -222,10 +222,103 @@ const COPY = {
   },
 } as const;
 
+const KEYS: CircleKey[] = [
+  { index: 0, major: 'C', minor: 'Am', sharps: 0, flats: 0 },
+  { index: 1, major: 'G', minor: 'Em', sharps: 1, flats: 0 },
+  { index: 2, major: 'D', minor: 'Bm', sharps: 2, flats: 0 },
+  { index: 3, major: 'A', minor: 'F♯m', sharps: 3, flats: 0 },
+  { index: 4, major: 'E', minor: 'C♯m', sharps: 4, flats: 0 },
+  { index: 5, major: 'B', minor: 'G♯m', sharps: 5, flats: 0 },
+  { index: 6, major: 'F♯', minor: 'D♯m', sharps: 6, flats: 0 },
+  { index: 7, major: 'D♭', minor: 'B♭m', sharps: 0, flats: 5 },
+  { index: 8, major: 'A♭', minor: 'Fm', sharps: 0, flats: 4 },
+  { index: 9, major: 'E♭', minor: 'Cm', sharps: 0, flats: 3 },
+  { index: 10, major: 'B♭', minor: 'Gm', sharps: 0, flats: 2 },
+  { index: 11, major: 'F', minor: 'Dm', sharps: 0, flats: 1 },
+];
+
+function dimChord(idx: number): string {
+  // The diminished chord root is the minor key two steps clockwise (idx+2)
+  return KEYS[(idx + 2) % 12].minor.replace(/m$/, '°');
+}
+
+function buildChordRows(idx: number, type: 'major' | 'minor', copy: (typeof COPY)[Language]): ChordRow[] {
+  const prev = (idx - 1 + 12) % 12;
+  const next = (idx + 1) % 12;
+  if (type === 'major') {
+    return [
+      { numeral: 'I',    chord: KEYS[idx].major,  chordType: copy.major,      role: copy.roles.tonic,       state: 'tonic' },
+      { numeral: 'ii',   chord: KEYS[prev].minor, chordType: copy.minor,      role: copy.roles.supertonic,  state: 'scale-minor' },
+      { numeral: 'iii',  chord: KEYS[next].minor, chordType: copy.minor,      role: copy.roles.mediant,     state: 'scale-minor' },
+      { numeral: 'IV',   chord: KEYS[prev].major, chordType: copy.major,      role: copy.roles.subdominant, state: 'scale-major' },
+      { numeral: 'V',    chord: KEYS[next].major, chordType: copy.major,      role: copy.roles.dominant,    state: 'scale-major' },
+      { numeral: 'vi',   chord: KEYS[idx].minor,  chordType: copy.minor,      role: copy.roles.submediant,  state: 'scale-minor' },
+      { numeral: 'vii°', chord: dimChord(idx),    chordType: copy.diminished, role: copy.roles.leadingTone, state: 'scale-diminished' },
+    ];
+  } else {
+    return [
+      { numeral: 'i',   chord: KEYS[idx].minor,  chordType: copy.minor,      role: copy.roles.tonic,       state: 'tonic' },
+      { numeral: 'iv',  chord: KEYS[prev].minor, chordType: copy.minor,      role: copy.roles.subdominant, state: 'scale-minor' },
+      { numeral: 'v',   chord: KEYS[next].minor, chordType: copy.minor,      role: copy.roles.dominant,    state: 'scale-minor' },
+      { numeral: 'III', chord: KEYS[idx].major,  chordType: copy.major,      role: copy.roles.mediant,     state: 'scale-major' },
+      { numeral: 'VI',  chord: KEYS[prev].major, chordType: copy.major,      role: copy.roles.submediant,  state: 'scale-major' },
+      { numeral: 'VII', chord: KEYS[next].major, chordType: copy.major,      role: copy.roles.subtonic,    state: 'scale-major' },
+      { numeral: 'ii°', chord: dimChord(idx),    chordType: copy.diminished, role: copy.roles.supertonic,  state: 'scale-diminished' },
+    ];
+  }
+}
+
+@Component({
+  selector: 'chord-section',
+  standalone: true,
+  imports: [NgClass],
+  templateUrl: './chord-section.component.html',
+  styleUrl: './chord-section.component.scss',
+})
+export class ChordSectionComponent {
+  readonly chords = input<string[]>([]);
+  readonly language = input<Language>('en');
+  readonly text = computed(() => COPY[this.language()]);
+
+  readonly match = computed(() => {
+    const input = this.chords();
+    if (!input.length) return null;
+    const inputSet = new Set(input);
+    let best: { idx: number; type: 'major' | 'minor'; score: number } | null = null;
+    for (let idx = 0; idx < 12; idx++) {
+      for (const type of ['major', 'minor'] as const) {
+        // chord names are language-independent; COPY.en is a dummy for label fields
+        const score = buildChordRows(idx, type, COPY.en).filter((r) => inputSet.has(r.chord)).length;
+        if (!best || score > best.score) best = { idx, type, score };
+      }
+    }
+    return best && best.score > 0 ? best : null;
+  });
+
+  readonly rows = computed(() => {
+    const m = this.match();
+    if (!m) return [];
+    return buildChordRows(m.idx, m.type, this.text());
+  });
+
+  readonly info = computed(() => {
+    const m = this.match();
+    if (!m) return null;
+    const copy = this.text();
+    const key = KEYS[m.idx];
+    return {
+      fullName: `${m.type === 'major' ? key.major : key.minor} ${m.type === 'major' ? copy.major : copy.minor}`,
+      relativeKey: m.type === 'major'
+        ? `${copy.relativeMinor}: ${key.minor}`
+        : `${copy.relativeMajor}: ${key.major}`,
+    };
+  });
+}
+
 @Component({
   selector: 'the-chords-circle-of-fifths',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, ChordSectionComponent],
   templateUrl: './circle-of-fifths.html',
   styleUrl: './circle-of-fifths.scss',
   host: { '[attr.lang]': 'language()' },
@@ -240,20 +333,7 @@ export class CircleOfFifthsComponent {
   readonly MAJOR = { inner: 172, outer: 250 };
   readonly MINOR = { inner: 102, outer: 172 };
 
-  readonly keys: CircleKey[] = [
-    { index: 0, major: 'C', minor: 'Am', sharps: 0, flats: 0 },
-    { index: 1, major: 'G', minor: 'Em', sharps: 1, flats: 0 },
-    { index: 2, major: 'D', minor: 'Bm', sharps: 2, flats: 0 },
-    { index: 3, major: 'A', minor: 'F♯m', sharps: 3, flats: 0 },
-    { index: 4, major: 'E', minor: 'C♯m', sharps: 4, flats: 0 },
-    { index: 5, major: 'B', minor: 'G♯m', sharps: 5, flats: 0 },
-    { index: 6, major: 'F♯', minor: 'D♯m', sharps: 6, flats: 0 },
-    { index: 7, major: 'D♭', minor: 'B♭m', sharps: 0, flats: 5 },
-    { index: 8, major: 'A♭', minor: 'Fm', sharps: 0, flats: 4 },
-    { index: 9, major: 'E♭', minor: 'Cm', sharps: 0, flats: 3 },
-    { index: 10, major: 'B♭', minor: 'Gm', sharps: 0, flats: 2 },
-    { index: 11, major: 'F', minor: 'Dm', sharps: 0, flats: 1 },
-  ];
+  readonly keys = KEYS;
 
   selectedIndex = signal<number | null>(null);
   selectedType = signal<'major' | 'minor' | null>(null);
@@ -386,10 +466,16 @@ export class CircleOfFifthsComponent {
     };
   }
 
-  private dimChord(idx: number): string {
-    // The diminished chord root is the minor key two steps clockwise (idx+2)
-    const minor = this.keys[(idx + 2) % 12].minor;
-    return minor.replace(/m$/, '°');
+
+  get chordTable(): ChordRow[] {
+    const idx = this.selectedIndex();
+    const type = this.selectedType();
+    if (idx === null || type === null) return [];
+    return buildChordRows(idx, type, this.text());
+  }
+
+  get chordNames(): string[] {
+    return this.chordTable.map((r) => r.chord);
   }
 
   getAccidentalText(key: CircleKey): string {
@@ -402,7 +488,7 @@ export class CircleOfFifthsComponent {
     const idx = this.selectedIndex();
     const type = this.selectedType();
     if (idx === null || type === null) return null;
-    const key = this.keys[idx];
+    const key = KEYS[idx];
     const copy = this.text();
     const scale = type === 'major' ? copy.major : copy.minor;
     return {
@@ -414,122 +500,6 @@ export class CircleOfFifthsComponent {
           ? `${copy.relativeMinor}: ${key.minor}`
           : `${copy.relativeMajor}: ${key.major}`,
     };
-  }
-
-  get chordTable(): ChordRow[] {
-    const idx = this.selectedIndex();
-    const type = this.selectedType();
-    if (idx === null || type === null) return [];
-
-    const prev = (idx - 1 + 12) % 12;
-    const next = (idx + 1) % 12;
-    const copy = this.text();
-
-    if (type === 'major') {
-      return [
-        {
-          numeral: 'I',
-          chord: this.keys[idx].major,
-          chordType: copy.major,
-          role: copy.roles.tonic,
-          state: 'tonic',
-        },
-        {
-          numeral: 'ii',
-          chord: this.keys[prev].minor,
-          chordType: copy.minor,
-          role: copy.roles.supertonic,
-          state: 'scale-minor',
-        },
-        {
-          numeral: 'iii',
-          chord: this.keys[next].minor,
-          chordType: copy.minor,
-          role: copy.roles.mediant,
-          state: 'scale-minor',
-        },
-        {
-          numeral: 'IV',
-          chord: this.keys[prev].major,
-          chordType: copy.major,
-          role: copy.roles.subdominant,
-          state: 'scale-major',
-        },
-        {
-          numeral: 'V',
-          chord: this.keys[next].major,
-          chordType: copy.major,
-          role: copy.roles.dominant,
-          state: 'scale-major',
-        },
-        {
-          numeral: 'vi',
-          chord: this.keys[idx].minor,
-          chordType: copy.minor,
-          role: copy.roles.submediant,
-          state: 'scale-minor',
-        },
-        {
-          numeral: 'vii°',
-          chord: this.dimChord(idx),
-          chordType: copy.diminished,
-          role: copy.roles.leadingTone,
-          state: 'scale-diminished',
-        },
-      ];
-    } else {
-      return [
-        {
-          numeral: 'i',
-          chord: this.keys[idx].minor,
-          chordType: copy.minor,
-          role: copy.roles.tonic,
-          state: 'tonic',
-        },
-        {
-          numeral: 'iv',
-          chord: this.keys[prev].minor,
-          chordType: copy.minor,
-          role: copy.roles.subdominant,
-          state: 'scale-minor',
-        },
-        {
-          numeral: 'v',
-          chord: this.keys[next].minor,
-          chordType: copy.minor,
-          role: copy.roles.dominant,
-          state: 'scale-minor',
-        },
-        {
-          numeral: 'III',
-          chord: this.keys[idx].major,
-          chordType: copy.major,
-          role: copy.roles.mediant,
-          state: 'scale-major',
-        },
-        {
-          numeral: 'VI',
-          chord: this.keys[prev].major,
-          chordType: copy.major,
-          role: copy.roles.submediant,
-          state: 'scale-major',
-        },
-        {
-          numeral: 'VII',
-          chord: this.keys[next].major,
-          chordType: copy.major,
-          role: copy.roles.subtonic,
-          state: 'scale-major',
-        },
-        {
-          numeral: 'ii°',
-          chord: this.dimChord(idx),
-          chordType: copy.diminished,
-          role: copy.roles.supertonic,
-          state: 'scale-diminished',
-        },
-      ];
-    }
   }
 
   private deriveSections(numerals: string[], lookup: Map<string, string>): Section[] {

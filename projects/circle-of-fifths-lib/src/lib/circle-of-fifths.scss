@@ -336,110 +336,6 @@ $keysig-fill: var(--_chords-text);
 }
 
 // ─────────────────────────────────────────────
-// Chord Table
-// ─────────────────────────────────────────────
-.chord-section {
-  margin-top: 36px;
-  text-align: center;
-
-  h2 {
-    margin: 0 0 4px;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: $color-text;
-  }
-
-  .relative-label {
-    margin: 0 0 20px;
-    font-size: 0.88rem;
-    color: $color-muted;
-  }
-}
-
-.chord-grid {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  justify-content: center;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.chord-card {
-  border-radius: 12px;
-  padding: 12px 14px;
-  min-width: 82px;
-  flex-shrink: 0;
-  text-align: center;
-  background: color-mix(in srgb, var(--_chords-text) 8%, var(--_chords-surface));
-  border: 2px solid transparent;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px color-mix(in srgb, var(--_chords-text) 10%, transparent);
-  }
-
-  .chord-numeral {
-    font-size: 0.85rem;
-    font-weight: 700;
-    font-style: italic;
-    color: var(--_chords-muted);
-  }
-
-  .chord-name {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: $color-text;
-    margin: 2px 0;
-    letter-spacing: -0.02em;
-  }
-
-  .chord-type {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
-  }
-
-  .chord-role {
-    font-size: 0.7rem;
-    color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
-    margin-top: 2px;
-  }
-
-  // State-based card colors
-  &.tonic {
-    background: color-mix(in srgb, var(--_chords-highlight) 10%, var(--_chords-surface));
-    border-color: $tonic-fill;
-    .chord-numeral,
-    .chord-name {
-      color: color-mix(in srgb, var(--_chords-highlight) 58%, var(--_chords-text));
-    }
-  }
-
-  &.scale-major {
-    background: color-mix(in srgb, var(--_chords-primary) 9%, var(--_chords-surface));
-    border-color: $major-fill;
-    .chord-numeral,
-    .chord-name {
-      color: color-mix(in srgb, var(--_chords-primary) 65%, var(--_chords-text));
-    }
-  }
-
-  &.scale-diminished {
-    background: color-mix(in srgb, var(--_chords-danger) 9%, var(--_chords-surface));
-    border-color: var(--_chords-danger);
-    .chord-numeral,
-    .chord-name {
-      color: color-mix(in srgb, var(--_chords-danger) 65%, var(--_chords-text));
-    }
-  }
-}
-
-// ─────────────────────────────────────────────
 // Chord Progressions
 // ─────────────────────────────────────────────
 .progressions-section {
@@ -618,9 +514,5 @@ $keysig-fill: var(--_chords-text);
 @media (max-width: 480px) {
   .page-header h1 {
     font-size: 1.5rem;
-  }
-  .chord-card {
-    min-width: 75px;
-    padding: 10px 12px;
   }
 }

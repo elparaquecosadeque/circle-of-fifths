@@ -1,0 +1,18 @@
+@if (rows().length) {
+  <section class="chord-section">
+    @if (info(); as info) {
+      <h2>{{ info.fullName }} — {{ text().diatonicChords }}</h2>
+      <p class="relative-label">{{ info.relativeKey }}</p>
+    }
+    <div class="chord-grid">
+      @for (row of rows(); track row.numeral) {
+        <div class="chord-card" [ngClass]="row.state">
+          <div class="chord-numeral">{{ row.numeral }}</div>
+          <div class="chord-name">{{ row.chord }}</div>
+          <div class="chord-type">{{ row.chordType }}</div>
+          <div class="chord-role">{{ row.role }}</div>
+        </div>
+      }
+    </div>
+  </section>
+}

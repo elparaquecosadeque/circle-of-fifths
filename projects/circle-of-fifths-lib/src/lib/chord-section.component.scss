@@ -1,0 +1,126 @@
+// CSS custom property definitions — mirrors the parent component so ChordSectionComponent
+// works standalone (outside CircleOfFifthsComponent). When nested inside the parent,
+// these simply re-resolve to the same values via the same public --chords-* tokens.
+:host {
+  --_chords-background: var(--chords-background, #f0f4f8);
+  --_chords-surface: var(--chords-surface, #ffffff);
+  --_chords-surface-elevated: var(--chords-surface-elevated, #f8fafc);
+  --_chords-text: var(--chords-text, #1e293b);
+  --_chords-muted: var(--chords-muted, #64748b);
+  --_chords-primary: var(--chords-primary, #3b82f6);
+  --_chords-secondary: var(--chords-secondary, #06b6d4);
+  --_chords-highlight: var(--chords-highlight, #f59e0b);
+  --_chords-danger: var(--chords-danger, #a855f7);
+  --_chords-border: var(--chords-border, #e2e8f0);
+  --_chords-on-primary: var(--chords-on-primary, #ffffff);
+
+  display: block;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.chord-section {
+  margin-top: 36px;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 4px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--_chords-text);
+  }
+
+  .relative-label {
+    margin: 0 0 20px;
+    font-size: 0.88rem;
+    color: var(--_chords-muted);
+  }
+}
+
+.chord-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  justify-content: center;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.chord-card {
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-width: 82px;
+  flex-shrink: 0;
+  text-align: center;
+  background: color-mix(in srgb, var(--_chords-text) 8%, var(--_chords-surface));
+  border: 2px solid transparent;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--_chords-text) 10%, transparent);
+  }
+
+  .chord-numeral {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--_chords-muted);
+  }
+
+  .chord-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--_chords-text);
+    margin: 2px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .chord-type {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
+  }
+
+  .chord-role {
+    font-size: 0.7rem;
+    color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
+    margin-top: 2px;
+  }
+
+  &.tonic {
+    background: color-mix(in srgb, var(--_chords-highlight) 10%, var(--_chords-surface));
+    border-color: var(--_chords-highlight);
+    .chord-numeral,
+    .chord-name {
+      color: color-mix(in srgb, var(--_chords-highlight) 58%, var(--_chords-text));
+    }
+  }
+
+  &.scale-major {
+    background: color-mix(in srgb, var(--_chords-primary) 9%, var(--_chords-surface));
+    border-color: var(--_chords-primary);
+    .chord-numeral,
+    .chord-name {
+      color: color-mix(in srgb, var(--_chords-primary) 65%, var(--_chords-text));
+    }
+  }
+
+  &.scale-diminished {
+    background: color-mix(in srgb, var(--_chords-danger) 9%, var(--_chords-surface));
+    border-color: var(--_chords-danger);
+    .chord-numeral,
+    .chord-name {
+      color: color-mix(in srgb, var(--_chords-danger) 65%, var(--_chords-text));
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .chord-card {
+    min-width: 75px;
+    padding: 10px 12px;
+  }
+}

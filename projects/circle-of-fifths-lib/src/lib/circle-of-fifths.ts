@@ -17,12 +17,19 @@ interface ChordRow {
   state: 'tonic' | 'scale-major' | 'scale-minor' | 'scale-diminished';
 }
 
+interface Section {
+  label: string;
+  numerals: string[];
+  chords: string[];
+}
+
 interface Progression {
   name: string;
   mood: string;
   genre: string;
   numerals: string[];
   chords: string[];
+  sections: Section[];
 }
 
 type Language = 'en' | 'es';
@@ -153,6 +160,11 @@ const COPY = {
     diatonicChords: 'Diatonic Chords',
     commonProgressions: 'Common Progressions in',
     generateProgressions: 'Shuffle',
+    chorus: 'Chorus',
+    bridge: 'Bridge',
+    outro: 'Outro',
+    expand: 'Expand',
+    collapse: 'Collapse',
     major: 'Major',
     minor: 'Minor',
     diminished: 'diminished',
@@ -183,6 +195,11 @@ const COPY = {
     diatonicChords: 'Acordes diatónicos',
     commonProgressions: 'Progresiones comunes en',
     generateProgressions: 'Generar nuevos',
+    chorus: 'Coro',
+    bridge: 'Puente',
+    outro: 'Final',
+    expand: 'Expandir',
+    collapse: 'Colapsar',
     major: 'Mayor',
     minor: 'Menor',
     diminished: 'disminuido',
@@ -237,6 +254,7 @@ export class CircleOfFifthsComponent {
   selectedIndex = signal<number | null>(null);
   selectedType = signal<'major' | 'minor' | null>(null);
   readonly activeProgressionDefs = signal<ProgressionDefinition[] | null>(null);
+  readonly expandedCards = signal<Set<string>>(new Set());
 
   private get slice() {
     const idx = this.selectedIndex();
@@ -257,6 +275,7 @@ export class CircleOfFifthsComponent {
       this.selectedType.set(type);
     }
     this.activeProgressionDefs.set(null);
+    this.expandedCards.set(new Set());
   }
 
   randomizeProgressions(): void {
@@ -264,6 +283,15 @@ export class CircleOfFifthsComponent {
     if (!type) return;
     // ponytail: sort-shuffle is fine for UI randomness
     this.activeProgressionDefs.set([...PROGRESSIONS[type]].sort(() => Math.random() - 0.5).slice(0, 4));
+    this.expandedCards.set(new Set());
+  }
+
+  toggleCard(name: string): void {
+    this.expandedCards.update((set) => {
+      const next = new Set(set);
+      next.has(name) ? next.delete(name) : next.add(name);
+      return next;
+    });
   }
 
   getMajorState(index: number): string {
@@ -493,6 +521,35 @@ export class CircleOfFifthsComponent {
     }
   }
 
+  private deriveSections(numerals: string[], lookup: Map<string, string>): Section[] {
+    const type = this.selectedType()!;
+    const copy = this.text();
+    const resolve = (ns: string[]) => ({ numerals: ns, chords: ns.map((n) => lookup.get(n) ?? n) });
+
+    // Chorus: rotate to lift chord (IV for major, VI for minor); else fixed fallback
+    const chorusPivot = type === 'major' ? 'IV' : 'VI';
+    const chorusIdx = numerals.indexOf(chorusPivot);
+    const chorus = chorusIdx > 0
+      ? resolve([...numerals.slice(chorusIdx), ...numerals.slice(0, chorusIdx)])
+      : resolve(type === 'major' ? ['I', 'IV', 'V', 'I'] : ['i', 'VI', 'III', 'VII']);
+
+    // Bridge: rotate to contrast chord (vi for major, III for minor); else fixed fallback
+    const bridgePivot = type === 'major' ? 'vi' : 'III';
+    const bridgeIdx = numerals.indexOf(bridgePivot);
+    const bridge = bridgeIdx >= 0
+      ? resolve([...numerals.slice(bridgeIdx), ...numerals.slice(0, bridgeIdx)])
+      : resolve(type === 'major' ? ['vi', 'IV', 'ii', 'V'] : ['III', 'VII', 'VI', 'iv']);
+
+    // Outro: fixed resolving pattern per mode
+    const outro = resolve(type === 'major' ? ['I', 'V', 'IV', 'I'] : ['i', 'VII', 'VI', 'i']);
+
+    return [
+      { label: copy.chorus, ...chorus },
+      { label: copy.bridge, ...bridge },
+      { label: copy.outro, ...outro },
+    ];
+  }
+
   get progressions(): Progression[] {
     const table = this.chordTable;
     if (!table.length) return [];
@@ -506,6 +563,7 @@ export class CircleOfFifthsComponent {
       genre: definition.genre[language],
       numerals: definition.numerals,
       chords: definition.numerals.map((numeral) => lookup.get(numeral) ?? numeral),
+      sections: this.deriveSections(definition.numerals, lookup),
     }));
   }
 }

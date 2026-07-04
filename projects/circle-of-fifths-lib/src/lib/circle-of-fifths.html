@@ -159,6 +159,32 @@
                 }
               }
             </div>
+            <div class="prog-expand-row">
+              <button class="btn-expand" (click)="toggleCard(prog.name)">
+                {{ expandedCards().has(prog.name) ? text().collapse : text().expand }}
+              </button>
+            </div>
+            @if (expandedCards().has(prog.name)) {
+              <div class="prog-sections">
+                @for (section of prog.sections; track section.label) {
+                  <div class="prog-section">
+                    <div class="prog-section-label">{{ section.label }}</div>
+                    <div class="prog-chords">
+                      @for (chord of section.chords; track $index; let last = $last) {
+                        <span class="prog-chord">{{ chord }}</span>
+                        @if (!last) { <span class="prog-arrow">→</span> }
+                      }
+                    </div>
+                    <div class="prog-numerals">
+                      @for (num of section.numerals; track $index; let last = $last) {
+                        <span>{{ num }}</span>
+                        @if (!last) { <span class="prog-arrow">→</span> }
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           </div>
         }
       </div>

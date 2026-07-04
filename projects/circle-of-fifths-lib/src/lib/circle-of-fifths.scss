@@ -560,6 +560,53 @@ $keysig-fill: var(--_chords-text);
   color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
 }
 
+.prog-expand-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.btn-expand {
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid var(--_chords-border);
+  border-radius: 12px;
+  background: transparent;
+  color: $color-muted;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--_chords-primary);
+    color: var(--_chords-primary);
+  }
+}
+
+.prog-sections {
+  margin-top: 12px;
+  border-top: 1px solid var(--_chords-border);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prog-section {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--_chords-text) 4%, var(--_chords-surface));
+}
+
+.prog-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: $color-muted;
+  margin-bottom: 5px;
+}
+
 .prog-arrow {
   color: color-mix(in srgb, var(--_chords-muted) 42%, var(--_chords-background));
   font-size: 0.8rem;

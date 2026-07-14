@@ -10,6 +10,13 @@
     "watch": "ng build circle-of-fifths-lib && ng build circle-of-fifths --watch --configuration development",
     "test": "ng test circle-of-fifths-lib --watch=false"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/elparaquecosadeque/circle-of-fifths"
+  },
   "private": true,
   "packageManager": "npm@11.13.0",
   "dependencies": {

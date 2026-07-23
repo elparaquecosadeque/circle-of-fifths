@@ -158,6 +158,9 @@
               <button class="btn-expand" (click)="copyChords(prog)">
                 {{ text().copy }}
               </button>
+              <button class="btn-spice" [class.btn-spice--active]="prog.spiceLevel > 0" (click)="cycleSpice(prog.nameEn)">
+                {{ text().spiceLabels[prog.spiceLevel] }}
+              </button>
             </div>
             @if (expandedCards().has(prog.name)) {
               <div class="prog-sections">

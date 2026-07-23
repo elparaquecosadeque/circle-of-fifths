@@ -32,6 +32,7 @@ interface Progression {
   chords: string[];
   sections: Section[];
   transposeIdx: number;
+  spiceLevel: number;
 }
 
 type Language = 'en' | 'es';
@@ -170,6 +171,7 @@ const COPY = {
     expand: 'Expand',
     collapse: 'Collapse',
     transposeLabel: 'Transpose to:',
+    spiceLabels: ['🌶 Spice', '🌶🌶 Spicier', '🔥 Hot!', '↩ Plain'],
     major: 'Major',
     minor: 'Minor',
     diminished: 'diminished',
@@ -208,6 +210,7 @@ const COPY = {
     expand: 'Expandir',
     collapse: 'Colapsar',
     transposeLabel: 'Transponer a:',
+    spiceLabels: ['🌶 Condimentar', '🌶🌶 Más sabor', '🔥 ¡Picante!', '↩ Simple'],
     major: 'Mayor',
     minor: 'Menor',
     diminished: 'disminuido',
@@ -270,6 +273,35 @@ function buildChordRows(idx: number, type: 'major' | 'minor', copy: (typeof COPY
       { numeral: 'ii°', chord: dimChord(idx),    chordType: copy.diminished, role: copy.roles.supertonic,  state: 'scale-diminished' },
     ];
   }
+}
+
+// Suffix to append per numeral at spice levels 1, 2, 3.
+// Minor chords already carry 'm' (e.g. "Dm"), so suffix starts from the number.
+// Diminished chords carry '°' which gets replaced entirely.
+const SPICE_SUFFIXES: Record<string, readonly [string, string, string]> = {
+  'I':    ['maj7', 'maj9',    'maj9'      ],
+  'ii':   ['7',    '9',       '11'        ],
+  'iii':  ['7',    '7',       '7'         ],
+  'IV':   ['maj7', 'maj9',    'maj7♯11'   ],
+  'V':    ['7',    '9',       '13'        ],
+  'vi':   ['7',    '9',       '11'        ],
+  'vii°': ['m7♭5', 'm7♭5',   'm7♭5'      ],
+  'i':    ['7',    '9',       '9'         ],
+  'iv':   ['7',    '9',       '11'        ],
+  'v':    ['7',    '7',       '7'         ],
+  'III':  ['maj7', 'maj7',    'maj7'      ],
+  'VI':   ['maj7', 'maj9',    'maj9'      ],
+  'VII':  ['7',    '9',       '13'        ],
+  'ii°':  ['m7♭5', 'm7♭5',   'm7♭5'      ],
+};
+
+function spiceChord(chord: string, numeral: string, level: number): string {
+  if (level === 0) return chord;
+  const suffixes = SPICE_SUFFIXES[numeral];
+  if (!suffixes) return chord;
+  const suffix = suffixes[level - 1];
+  // Diminished chords: strip '°', then the suffix already starts with 'm'
+  return chord.endsWith('°') ? chord.slice(0, -1) + suffix : chord + suffix;
 }
 
 @Component({
@@ -344,6 +376,7 @@ export class CircleOfFifthsComponent {
   readonly activeProgressionDefs = signal<ProgressionDefinition[] | null>(null);
   readonly expandedCards = signal<Set<string>>(new Set());
   readonly transposeMap = signal<Map<string, number>>(new Map());
+  readonly spiceMap = signal<Map<string, number>>(new Map());
 
   constructor() {
     // Restore selected key from URL hash (format: #{index}-{type})
@@ -383,6 +416,7 @@ export class CircleOfFifthsComponent {
     this.activeProgressionDefs.set(null);
     this.expandedCards.set(new Set());
     this.transposeMap.set(new Map());
+    this.spiceMap.set(new Map());
   }
 
   randomizeProgressions(): void {
@@ -392,6 +426,7 @@ export class CircleOfFifthsComponent {
     this.activeProgressionDefs.set([...PROGRESSIONS[type]].sort(() => Math.random() - 0.5).slice(0, 4));
     this.expandedCards.set(new Set());
     this.transposeMap.set(new Map());
+    this.spiceMap.set(new Map());
   }
 
   toggleCard(name: string): void {
@@ -413,6 +448,15 @@ export class CircleOfFifthsComponent {
     this.transposeMap.update((m) => {
       const next = new Map(m);
       targetIdx === this.selectedIndex() ? next.delete(nameEn) : next.set(nameEn, targetIdx);
+      return next;
+    });
+  }
+
+  cycleSpice(nameEn: string): void {
+    this.spiceMap.update((m) => {
+      const next = new Map(m);
+      const nextLevel = ((next.get(nameEn) ?? 0) + 1) % 4;
+      nextLevel === 0 ? next.delete(nameEn) : next.set(nameEn, nextLevel);
       return next;
     });
   }
@@ -572,25 +616,29 @@ export class CircleOfFifthsComponent {
   get progressions(): Progression[] {
     const table = this.chordTable;
     if (!table.length) return [];
+    const selIdx = this.selectedIndex()!;
     const transposeMap = this.transposeMap();
+    const spiceMap = this.spiceMap();
     const language = this.language();
     const type = this.selectedType() === 'major' ? 'major' : 'minor';
     const defs = this.activeProgressionDefs() ?? PROGRESSIONS[type].slice(0, 4);
-    const defaultLookup = new Map(table.map((r) => [r.numeral, r.chord]));
     return defs.map((definition) => {
-      const targetIdx = transposeMap.get(definition.name.en);
-      const lookup = targetIdx !== undefined
-        ? new Map(buildChordRows(targetIdx, type, this.text()).map((r) => [r.numeral, r.chord]))
-        : defaultLookup;
+      const targetIdx = transposeMap.get(definition.name.en) ?? selIdx;
+      const spiceLevel = spiceMap.get(definition.name.en) ?? 0;
+      const baseRows = buildChordRows(targetIdx, type, this.text());
+      const lookup = new Map(
+        baseRows.map((r) => [r.numeral, spiceChord(r.chord, r.numeral, spiceLevel)]),
+      );
       return {
         nameEn: definition.name.en,
         name: definition.name[language],
         mood: definition.mood[language],
         genre: definition.genre[language],
         numerals: definition.numerals,
-        chords: definition.numerals.map((numeral) => lookup.get(numeral) ?? numeral),
+        chords: definition.numerals.map((n) => lookup.get(n) ?? n),
         sections: this.deriveSections(definition.numerals, lookup),
-        transposeIdx: targetIdx ?? this.selectedIndex()!,
+        transposeIdx: targetIdx,
+        spiceLevel,
       };
     });
   }

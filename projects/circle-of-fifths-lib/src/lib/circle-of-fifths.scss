@@ -496,6 +496,28 @@ $keysig-fill: var(--_chords-text);
   margin-top: 10px;
 }
 
+.btn-spice {
+  background: transparent;
+  border: 1px solid var(--cof-accent, #e09030);
+  border-radius: 6px;
+  color: var(--cof-accent, #e09030);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: var(--cof-accent, #e09030);
+    color: #fff;
+  }
+
+  &.btn-spice--active {
+    background: var(--cof-accent, #e09030);
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
 .btn-expand {
   padding: 3px 10px;
   font-size: 0.72rem;

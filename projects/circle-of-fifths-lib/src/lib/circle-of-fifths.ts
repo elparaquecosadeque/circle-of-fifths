@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, effect, input, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 interface CircleKey {
@@ -24,12 +24,14 @@ interface Section {
 }
 
 interface Progression {
+  nameEn: string;
   name: string;
   mood: string;
   genre: string;
   numerals: string[];
   chords: string[];
   sections: Section[];
+  transposeIdx: number;
 }
 
 type Language = 'en' | 'es';
@@ -167,6 +169,7 @@ const COPY = {
     copy: 'Copy',
     expand: 'Expand',
     collapse: 'Collapse',
+    transposeLabel: 'Transpose to:',
     major: 'Major',
     minor: 'Minor',
     diminished: 'diminished',
@@ -204,6 +207,7 @@ const COPY = {
     copy: 'Copiar',
     expand: 'Expandir',
     collapse: 'Colapsar',
+    transposeLabel: 'Transponer a:',
     major: 'Mayor',
     minor: 'Menor',
     diminished: 'disminuido',
@@ -339,6 +343,24 @@ export class CircleOfFifthsComponent {
   selectedType = signal<'major' | 'minor' | null>(null);
   readonly activeProgressionDefs = signal<ProgressionDefinition[] | null>(null);
   readonly expandedCards = signal<Set<string>>(new Set());
+  readonly transposeMap = signal<Map<string, number>>(new Map());
+
+  constructor() {
+    // Restore selected key from URL hash (format: #{index}-{type})
+    const [idxStr, type] = location.hash.slice(1).split('-');
+    const idx = Number(idxStr);
+    if (!isNaN(idx) && idx >= 0 && idx < 12 && (type === 'major' || type === 'minor')) {
+      this.selectedIndex.set(idx);
+      this.selectedType.set(type as 'major' | 'minor');
+    }
+    // Keep URL hash in sync with selected key
+    effect(() => {
+      const idx = this.selectedIndex();
+      const type = this.selectedType();
+      const hash = idx !== null && type !== null ? `#${idx}-${type}` : '';
+      history.replaceState(null, '', location.pathname + location.search + hash);
+    });
+  }
 
   private get slice() {
     const idx = this.selectedIndex();
@@ -360,6 +382,7 @@ export class CircleOfFifthsComponent {
     }
     this.activeProgressionDefs.set(null);
     this.expandedCards.set(new Set());
+    this.transposeMap.set(new Map());
   }
 
   randomizeProgressions(): void {
@@ -368,6 +391,7 @@ export class CircleOfFifthsComponent {
     // ponytail: sort-shuffle is fine for UI randomness
     this.activeProgressionDefs.set([...PROGRESSIONS[type]].sort(() => Math.random() - 0.5).slice(0, 4));
     this.expandedCards.set(new Set());
+    this.transposeMap.set(new Map());
   }
 
   toggleCard(name: string): void {
@@ -383,6 +407,20 @@ export class CircleOfFifthsComponent {
       ? [`${this.text().verse}: ${prog.chords.join(', ')}`, ...prog.sections.map((s) => `${s.label}: ${s.chords.join(', ')}`)].join('; ')
       : prog.chords.join(', ');
     navigator.clipboard.writeText(text);
+  }
+
+  setTranspose(nameEn: string, targetIdx: number): void {
+    this.transposeMap.update((m) => {
+      const next = new Map(m);
+      targetIdx === this.selectedIndex() ? next.delete(nameEn) : next.set(nameEn, targetIdx);
+      return next;
+    });
+  }
+
+  get transposeKeys(): { idx: number; name: string }[] {
+    const type = this.selectedType();
+    if (!type) return [];
+    return KEYS.map((k) => ({ idx: k.index, name: type === 'major' ? k.major : k.minor }));
   }
 
   getMajorState(index: number): string {
@@ -534,17 +572,26 @@ export class CircleOfFifthsComponent {
   get progressions(): Progression[] {
     const table = this.chordTable;
     if (!table.length) return [];
-    const lookup = new Map(table.map((r) => [r.numeral, r.chord]));
+    const transposeMap = this.transposeMap();
     const language = this.language();
     const type = this.selectedType() === 'major' ? 'major' : 'minor';
     const defs = this.activeProgressionDefs() ?? PROGRESSIONS[type].slice(0, 4);
-    return defs.map((definition) => ({
-      name: definition.name[language],
-      mood: definition.mood[language],
-      genre: definition.genre[language],
-      numerals: definition.numerals,
-      chords: definition.numerals.map((numeral) => lookup.get(numeral) ?? numeral),
-      sections: this.deriveSections(definition.numerals, lookup),
-    }));
+    const defaultLookup = new Map(table.map((r) => [r.numeral, r.chord]));
+    return defs.map((definition) => {
+      const targetIdx = transposeMap.get(definition.name.en);
+      const lookup = targetIdx !== undefined
+        ? new Map(buildChordRows(targetIdx, type, this.text()).map((r) => [r.numeral, r.chord]))
+        : defaultLookup;
+      return {
+        nameEn: definition.name.en,
+        name: definition.name[language],
+        mood: definition.mood[language],
+        genre: definition.genre[language],
+        numerals: definition.numerals,
+        chords: definition.numerals.map((numeral) => lookup.get(numeral) ?? numeral),
+        sections: this.deriveSections(definition.numerals, lookup),
+        transposeIdx: targetIdx ?? this.selectedIndex()!,
+      };
+    });
   }
 }

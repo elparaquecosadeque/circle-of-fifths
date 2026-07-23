@@ -143,6 +143,14 @@
                 }
               }
             </div>
+            <div class="prog-transpose-row">
+              <label class="prog-transpose-label">{{ text().transposeLabel }}</label>
+              <select class="prog-transpose-select" (change)="setTranspose(prog.nameEn, +$any($event.target).value)">
+                @for (key of transposeKeys; track key.idx) {
+                  <option [value]="key.idx" [selected]="key.idx === prog.transposeIdx">{{ key.name }}</option>
+                }
+              </select>
+            </div>
             <div class="prog-expand-row">
               <button class="btn-expand" (click)="toggleCard(prog.name)">
                 {{ expandedCards().has(prog.name) ? text().collapse : text().expand }}

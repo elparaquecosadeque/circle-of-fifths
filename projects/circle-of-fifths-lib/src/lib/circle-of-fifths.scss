@@ -456,6 +456,40 @@ $keysig-fill: var(--_chords-text);
   color: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
 }
 
+.prog-transpose-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.prog-transpose-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: $color-muted;
+  white-space: nowrap;
+}
+
+.prog-transpose-select {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: $color-muted;
+  background: transparent;
+  border: 1px solid var(--_chords-border);
+  border-radius: 8px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  appearance: auto;
+
+  &:hover,
+  &:focus {
+    border-color: var(--_chords-primary);
+    color: var(--_chords-primary);
+    outline: none;
+  }
+}
+
 .prog-expand-row {
   display: flex;
   justify-content: flex-end;

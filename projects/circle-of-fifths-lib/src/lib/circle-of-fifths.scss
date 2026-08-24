@@ -42,7 +42,10 @@ $color-muted: var(--_chords-muted);
   font-family: 'Segoe UI', system-ui, sans-serif;
 
   @media (min-width: 900px) {
-    max-width: 1080px;
+    // Wide enough that the wheel can stay full-sized *and* the 7-card
+    // diatonic row still fits on one line next to it — instead of shrinking
+    // the wheel to fit a narrower container.
+    max-width: 1320px;
   }
 }
 
@@ -63,7 +66,10 @@ $color-muted: var(--_chords-muted);
 
 .circle-and-chords-wheel {
   @media (min-width: 900px) {
-    flex: 0 0 45%;
+    // A fixed target width (rather than a 45% share, and paired with the
+    // wider .page above) keeps the wheel full-sized while still leaving the
+    // diatonic chord row enough room to show all 7 cards on one line.
+    flex: 0 1 460px;
   }
 }
 

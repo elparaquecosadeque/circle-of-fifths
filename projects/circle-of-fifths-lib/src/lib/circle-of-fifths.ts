@@ -217,10 +217,18 @@ export class ChordSectionComponent {
   readonly alwaysShowDiagramsChange = output<boolean>();
   readonly text = computed(() => COPY[this.language()]);
 
+  // Seeded once from the persisted preference, not kept in sync with it —
+  // unchecking "always show" should only stop it persisting for next time,
+  // not yank away the grid the user is currently looking at. A self-destroying
+  // effect (rather than a field initializer) is needed because the input's
+  // real bound value isn't available until after construction.
   readonly diagramsExpanded = signal(false);
 
   constructor() {
-    effect(() => this.diagramsExpanded.set(this.alwaysShowDiagrams()));
+    const seedExpanded = effect(() => {
+      this.diagramsExpanded.set(this.alwaysShowDiagrams());
+      seedExpanded.destroy();
+    });
   }
 
   toggleDiagrams(): void {

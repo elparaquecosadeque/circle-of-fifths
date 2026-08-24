@@ -37,12 +37,13 @@
 }
 
 .chord-grid {
+  // Wrap instead of horizontal-scrolling: dragging across chord names used to
+  // just select text rather than scroll the row, silently hiding the I and
+  // vii° cards at both edges. Wrapping guarantees every chord stays visible.
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
-  overflow-x: auto;
-  padding-bottom: 4px;
 }
 
 .chord-card {
@@ -161,13 +162,14 @@
 }
 
 .diagram-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  justify-items: center;
   gap: 16px;
   margin-top: 16px;
 }
 
 .diagram-wrap {
-  flex: 0 0 auto;
+  width: 100%;
+  max-width: 160px;
 }

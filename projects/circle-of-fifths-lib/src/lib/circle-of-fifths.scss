@@ -2,24 +2,8 @@
 // Color palette
 // ─────────────────────────────────────────────
 $bg-page: var(--_chords-background);
-$bg-circle: var(--_chords-surface);
 $color-text: var(--_chords-text);
 $color-muted: var(--_chords-muted);
-
-// Segment states
-$tonic-fill: var(--_chords-highlight);
-$tonic-hover: color-mix(in srgb, var(--_chords-highlight) 84%, var(--_chords-text));
-$major-fill: var(--_chords-primary);
-$major-hover: color-mix(in srgb, var(--_chords-primary) 82%, var(--_chords-text));
-$minor-fill: var(--_chords-secondary);
-$minor-hover: color-mix(in srgb, var(--_chords-secondary) 82%, var(--_chords-text));
-
-// Default segment fills
-$major-default: color-mix(in srgb, var(--_chords-primary) 14%, var(--_chords-surface));
-$major-default-h: color-mix(in srgb, var(--_chords-primary) 24%, var(--_chords-surface));
-$minor-default: color-mix(in srgb, var(--_chords-secondary) 10%, var(--_chords-surface));
-$minor-default-h: color-mix(in srgb, var(--_chords-secondary) 20%, var(--_chords-surface));
-$keysig-fill: var(--_chords-text);
 
 // ─────────────────────────────────────────────
 // Host / Container
@@ -56,6 +40,39 @@ $keysig-fill: var(--_chords-text);
   margin: 0 auto;
   padding: 24px 16px 48px;
   font-family: 'Segoe UI', system-ui, sans-serif;
+
+  @media (min-width: 900px) {
+    max-width: 1080px;
+  }
+}
+
+// ─────────────────────────────────────────────
+// Wheel + diatonic chords: stacked on narrow viewports,
+// side-by-side on wide ones (same markup, no duplicate template).
+// ─────────────────────────────────────────────
+.circle-and-chords {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (min-width: 900px) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.circle-and-chords-wheel {
+  @media (min-width: 900px) {
+    flex: 0 0 45%;
+  }
+}
+
+.circle-and-chords-section {
+  min-width: 0;
+
+  @media (min-width: 900px) {
+    flex: 1 1 auto;
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -77,261 +94,6 @@ $keysig-fill: var(--_chords-text);
     margin: 0;
     color: $color-muted;
     font-size: 0.95rem;
-  }
-}
-
-// ─────────────────────────────────────────────
-// SVG Circle
-// ─────────────────────────────────────────────
-.circle-wrapper {
-  max-width: 580px;
-  margin: 0 auto;
-
-  svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-}
-
-// ── Key Signature Ring ──
-.keysig-segment {
-  fill: $keysig-fill;
-}
-
-.keysig-label {
-  fill: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
-  font-size: 12px;
-  font-weight: 500;
-  text-anchor: middle;
-  dominant-baseline: central;
-  pointer-events: none;
-}
-
-// ── Major Ring ──
-.major-group {
-  cursor: pointer;
-
-  path {
-    fill: $major-default;
-    stroke: $bg-circle;
-    stroke-width: 2;
-    transition: fill 0.18s ease;
-  }
-
-  &:hover path {
-    fill: $major-default-h;
-  }
-
-  .major-label {
-    fill: var(--_chords-text);
-    font-size: 15px;
-    font-weight: 700;
-    text-anchor: middle;
-    dominant-baseline: central;
-    pointer-events: none;
-    transition: fill 0.18s ease;
-  }
-
-  &.tonic {
-    path {
-      fill: $tonic-fill;
-    }
-    &:hover path {
-      fill: $tonic-hover;
-    }
-    .major-label {
-      fill: var(--_chords-on-primary);
-    }
-  }
-
-  &.scale-major {
-    path {
-      fill: $major-fill;
-    }
-    &:hover path {
-      fill: $major-hover;
-    }
-    .major-label {
-      fill: var(--_chords-on-primary);
-    }
-  }
-}
-
-// ── Minor Ring ──
-.minor-group {
-  cursor: pointer;
-
-  path {
-    fill: $minor-default;
-    stroke: $bg-circle;
-    stroke-width: 2;
-    transition: fill 0.18s ease;
-  }
-
-  &:hover path {
-    fill: $minor-default-h;
-  }
-
-  .minor-label {
-    fill: color-mix(in srgb, var(--_chords-text) 78%, var(--_chords-muted));
-    font-size: 12px;
-    font-weight: 600;
-    text-anchor: middle;
-    dominant-baseline: central;
-    pointer-events: none;
-    transition: fill 0.18s ease;
-  }
-
-  &.tonic {
-    path {
-      fill: $tonic-fill;
-    }
-    &:hover path {
-      fill: $tonic-hover;
-    }
-    .minor-label {
-      fill: var(--_chords-on-primary);
-    }
-  }
-
-  &.scale-minor {
-    path {
-      fill: $minor-fill;
-    }
-    &:hover path {
-      fill: $minor-hover;
-    }
-    .minor-label {
-      fill: var(--_chords-on-primary);
-    }
-  }
-
-  &.scale-diminished {
-    path {
-      fill: var(--_chords-danger);
-    }
-    &:hover path {
-      fill: color-mix(in srgb, var(--_chords-danger) 82%, var(--_chords-text));
-    }
-    .minor-label {
-      fill: var(--_chords-on-primary);
-    }
-  }
-}
-
-// ── Role labels (roman numerals) ──
-.role-label {
-  font-size: 10px;
-  font-style: italic;
-  font-weight: 600;
-  text-anchor: middle;
-  dominant-baseline: central;
-  pointer-events: none;
-  fill: color-mix(in srgb, var(--_chords-on-primary) 85%, transparent);
-}
-
-.outer-border {
-  fill: none;
-  stroke: var(--_chords-text);
-  stroke-width: 2.5;
-}
-
-// ── Center Circle ──
-.center-circle {
-  fill: var(--_chords-surface);
-  stroke: var(--_chords-border);
-  stroke-width: 2;
-  filter: drop-shadow(0 2px 10px color-mix(in srgb, var(--_chords-text) 8%, transparent));
-}
-
-.center-name {
-  font-size: 30px;
-  font-weight: 800;
-  text-anchor: middle;
-  dominant-baseline: auto;
-  fill: $color-text;
-  letter-spacing: -0.02em;
-}
-
-.center-scale {
-  font-size: 13px;
-  font-weight: 600;
-  text-anchor: middle;
-  dominant-baseline: auto;
-  fill: $color-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.center-relative {
-  font-size: 9.5px;
-  font-weight: 500;
-  text-anchor: middle;
-  dominant-baseline: auto;
-  fill: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
-}
-
-.center-deselect {
-  font-size: 8px;
-  text-anchor: middle;
-  dominant-baseline: auto;
-  fill: color-mix(in srgb, var(--_chords-muted) 42%, var(--_chords-background));
-}
-
-.center-hint {
-  font-size: 16px;
-  font-weight: 600;
-  text-anchor: middle;
-  dominant-baseline: auto;
-  fill: color-mix(in srgb, var(--_chords-muted) 72%, var(--_chords-background));
-}
-
-.center-hint-sm {
-  font-size: 11px;
-  text-anchor: middle;
-  dominant-baseline: auto;
-  fill: color-mix(in srgb, var(--_chords-muted) 42%, var(--_chords-background));
-}
-
-// ─────────────────────────────────────────────
-// Legend
-// ─────────────────────────────────────────────
-.legend {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin: 16px 0 0;
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
-    color: $color-muted;
-
-    &::before {
-      content: '';
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-    }
-
-    &.tonic::before {
-      background: $tonic-fill;
-    }
-    &.scale-major::before {
-      background: $major-fill;
-    }
-    &.scale-minor::before {
-      background: $minor-fill;
-    }
-    &.scale-diminished::before {
-      background: var(--_chords-danger);
-    }
   }
 }
 

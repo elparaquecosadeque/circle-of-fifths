@@ -14,5 +14,30 @@
         </div>
       }
     </div>
+
+    <button type="button" class="btn-diagrams-toggle" (click)="toggleDiagrams()">
+      {{ diagramsExpanded() ? text().hideChordDiagrams : text().showChordDiagrams }}
+    </button>
+
+    @if (diagramsExpanded()) {
+      <label class="always-show-diagrams">
+        <input
+          type="checkbox"
+          [checked]="alwaysShowDiagrams()"
+          (change)="onAlwaysShowChange($any($event.target).checked)"
+        />
+        {{ text().alwaysShowDiagrams }}
+      </label>
+
+      <div class="diagram-grid">
+        @for (result of chordDiagrams(); track result.id) {
+          @if (result.positions[0]; as position) {
+            <div class="diagram-wrap">
+              <app-chord-diagram [title]="result.displayName" [position]="position" [positionIndex]="0" />
+            </div>
+          }
+        }
+      </div>
+    }
   </section>
 }

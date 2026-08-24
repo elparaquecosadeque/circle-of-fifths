@@ -1,13 +1,9 @@
-import { Component, computed, effect, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { ChordDiagram, ChordService } from '@gblp/chord-finder';
 
-interface CircleKey {
-  index: number;
-  major: string;
-  minor: string;
-  sharps: number;
-  flats: number;
-}
+import { KEYS, COPY, Language, LocalizedText } from './circle-of-fifths-data';
+import { CircleOfFifthsWheel } from './components/circle-of-fifths-wheel/circle-of-fifths-wheel';
 
 interface ChordRow {
   numeral: string;
@@ -34,9 +30,6 @@ interface Progression {
   transposeIdx: number;
   spiceLevel: number;
 }
-
-type Language = 'en' | 'es';
-type LocalizedText = Record<Language, string>;
 
 interface ProgressionDefinition {
   name: LocalizedText;
@@ -148,102 +141,6 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
   ],
 };
 
-const COPY = {
-  en: {
-    title: 'Circle of Fifths',
-    subtitle: 'Click any major or minor key to highlight its diatonic chords',
-    ariaLabel: 'Circle of Fifths',
-    clickKey: 'Click a key',
-    seeChords: 'to see its chords',
-    deselect: '↩ click to deselect',
-    tonicLegend: 'Tonic (I / i)',
-    majorLegend: 'Major chords (IV, V)',
-    minorLegend: 'Minor chords (ii, iii, vi)',
-    diminishedLegend: 'Diminished (vii° / ii°)',
-    diatonicChords: 'Diatonic Chords',
-    commonProgressions: 'Common Progressions in',
-    generateProgressions: 'Shuffle',
-    chorus: 'Chorus',
-    bridge: 'Bridge',
-    outro: 'Outro',
-    verse: 'Verse',
-    copy: 'Copy',
-    expand: 'Expand',
-    collapse: 'Collapse',
-    transposeLabel: 'Transpose to:',
-    spiceLabels: ['🌶 Spice', '🌶🌶 Spicier', '🔥 Hot!', '↩ Plain'],
-    major: 'Major',
-    minor: 'Minor',
-    diminished: 'diminished',
-    relativeMinor: 'Relative minor',
-    relativeMajor: 'Relative major',
-    roles: {
-      tonic: 'Tonic',
-      supertonic: 'Supertonic',
-      mediant: 'Mediant',
-      subdominant: 'Subdominant',
-      dominant: 'Dominant',
-      submediant: 'Submediant',
-      leadingTone: 'Leading Tone',
-      subtonic: 'Subtonic',
-    },
-  },
-  es: {
-    title: 'Círculo de quintas',
-    subtitle: 'Haz clic en una tonalidad mayor o menor para resaltar sus acordes diatónicos',
-    ariaLabel: 'Círculo de quintas',
-    clickKey: 'Haz clic en una tonalidad',
-    seeChords: 'para ver sus acordes',
-    deselect: '↩ haz clic para deseleccionar',
-    tonicLegend: 'Tónica (I / i)',
-    majorLegend: 'Acordes mayores (IV, V)',
-    minorLegend: 'Acordes menores (ii, iii, vi)',
-    diminishedLegend: 'Disminuido (vii° / ii°)',
-    diatonicChords: 'Acordes diatónicos',
-    commonProgressions: 'Progresiones comunes en',
-    generateProgressions: 'Generar nuevos',
-    chorus: 'Coro',
-    bridge: 'Puente',
-    outro: 'Final',
-    verse: 'Estrofa',
-    copy: 'Copiar',
-    expand: 'Expandir',
-    collapse: 'Colapsar',
-    transposeLabel: 'Transponer a:',
-    spiceLabels: ['🌶 Condimentar', '🌶🌶 Más sabor', '🔥 ¡Picante!', '↩ Simple'],
-    major: 'Mayor',
-    minor: 'Menor',
-    diminished: 'disminuido',
-    relativeMinor: 'Relativa menor',
-    relativeMajor: 'Relativa mayor',
-    roles: {
-      tonic: 'Tónica',
-      supertonic: 'Supertónica',
-      mediant: 'Mediante',
-      subdominant: 'Subdominante',
-      dominant: 'Dominante',
-      submediant: 'Submediante',
-      leadingTone: 'Sensible',
-      subtonic: 'Subtónica',
-    },
-  },
-} as const;
-
-const KEYS: CircleKey[] = [
-  { index: 0, major: 'C', minor: 'Am', sharps: 0, flats: 0 },
-  { index: 1, major: 'G', minor: 'Em', sharps: 1, flats: 0 },
-  { index: 2, major: 'D', minor: 'Bm', sharps: 2, flats: 0 },
-  { index: 3, major: 'A', minor: 'F♯m', sharps: 3, flats: 0 },
-  { index: 4, major: 'E', minor: 'C♯m', sharps: 4, flats: 0 },
-  { index: 5, major: 'B', minor: 'G♯m', sharps: 5, flats: 0 },
-  { index: 6, major: 'F♯', minor: 'D♯m', sharps: 6, flats: 0 },
-  { index: 7, major: 'D♭', minor: 'B♭m', sharps: 0, flats: 5 },
-  { index: 8, major: 'A♭', minor: 'Fm', sharps: 0, flats: 4 },
-  { index: 9, major: 'E♭', minor: 'Cm', sharps: 0, flats: 3 },
-  { index: 10, major: 'B♭', minor: 'Gm', sharps: 0, flats: 2 },
-  { index: 11, major: 'F', minor: 'Dm', sharps: 0, flats: 1 },
-];
-
 function dimChord(idx: number): string {
   // The diminished chord root is the minor key two steps clockwise (idx+2)
   return KEYS[(idx + 2) % 12].minor.replace(/m$/, '°');
@@ -307,14 +204,33 @@ function spiceChord(chord: string, numeral: string, level: number): string {
 @Component({
   selector: 'chord-section',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, ChordDiagram],
   templateUrl: './chord-section.component.html',
   styleUrl: './chord-section.component.scss',
 })
 export class ChordSectionComponent {
+  private readonly chordService = inject(ChordService);
+
   readonly chords = input<string[]>([]);
   readonly language = input<Language>('en');
+  readonly alwaysShowDiagrams = input(false);
+  readonly alwaysShowDiagramsChange = output<boolean>();
   readonly text = computed(() => COPY[this.language()]);
+
+  readonly diagramsExpanded = signal(false);
+
+  constructor() {
+    effect(() => this.diagramsExpanded.set(this.alwaysShowDiagrams()));
+  }
+
+  toggleDiagrams(): void {
+    this.diagramsExpanded.update((v) => !v);
+  }
+
+  onAlwaysShowChange(checked: boolean): void {
+    this.alwaysShowDiagramsChange.emit(checked);
+    if (checked) this.diagramsExpanded.set(true);
+  }
 
   readonly match = computed(() => {
     const input = this.chords();
@@ -349,27 +265,29 @@ export class ChordSectionComponent {
         : `${copy.relativeMajor}: ${key.major}`,
     };
   });
+
+  readonly chordDiagrams = computed(() => {
+    const rows = this.rows();
+    if (!rows.length) return [];
+    return this.chordService
+      .search(rows.map((r) => r.chord).join(','), this.language())
+      .filter((r) => !r.error && r.positions.length > 0);
+  });
 }
 
 @Component({
   selector: 'the-chords-circle-of-fifths',
   standalone: true,
-  imports: [NgClass, ChordSectionComponent],
+  imports: [ChordSectionComponent, CircleOfFifthsWheel],
   templateUrl: './circle-of-fifths.html',
   styleUrl: './circle-of-fifths.scss',
   host: { '[attr.lang]': 'language()' },
 })
 export class CircleOfFifthsComponent {
   readonly language = input<Language>('en');
+  readonly alwaysShowDiagrams = input(false);
+  readonly alwaysShowDiagramsChange = output<boolean>();
   readonly text = computed(() => COPY[this.language()]);
-  readonly CX = 300;
-  readonly CY = 300;
-
-  readonly KEY_SIG = { inner: 250, outer: 288 };
-  readonly MAJOR = { inner: 172, outer: 250 };
-  readonly MINOR = { inner: 102, outer: 172 };
-
-  readonly keys = KEYS;
 
   selectedIndex = signal<number | null>(null);
   selectedType = signal<'major' | 'minor' | null>(null);
@@ -393,16 +311,6 @@ export class CircleOfFifthsComponent {
       const hash = idx !== null && type !== null ? `#${idx}-${type}` : '';
       history.replaceState(null, '', location.pathname + location.search + hash);
     });
-  }
-
-  private get slice() {
-    const idx = this.selectedIndex();
-    if (idx === null) return null;
-    return {
-      prev: (idx - 1 + 12) % 12,
-      curr: idx,
-      next: (idx + 1) % 12,
-    };
   }
 
   selectKey(index: number, type: 'major' | 'minor'): void {
@@ -467,88 +375,6 @@ export class CircleOfFifthsComponent {
     return KEYS.map((k) => ({ idx: k.index, name: type === 'major' ? k.major : k.minor }));
   }
 
-  getMajorState(index: number): string {
-    const s = this.slice;
-    if (!s) return '';
-    const type = this.selectedType();
-    if (index === s.curr) return type === 'major' ? 'tonic' : 'scale-major';
-    if (index === s.prev || index === s.next) return 'scale-major';
-    return '';
-  }
-
-  getMinorState(index: number): string {
-    const s = this.slice;
-    if (!s) return '';
-    const type = this.selectedType();
-    const dimIdx = (s.curr + 2) % 12;
-    if (index === s.curr) return type === 'minor' ? 'tonic' : 'scale-minor';
-    if (index === s.prev || index === s.next) return 'scale-minor';
-    if (index === dimIdx) return 'scale-diminished';
-    return '';
-  }
-
-  getMajorRole(index: number): string {
-    const s = this.slice;
-    if (!s) return '';
-    const type = this.selectedType();
-    if (type === 'major') {
-      if (index === s.curr) return 'I';
-      if (index === s.prev) return 'IV';
-      if (index === s.next) return 'V';
-    } else {
-      if (index === s.curr) return 'III';
-      if (index === s.prev) return 'VI';
-      if (index === s.next) return 'VII';
-    }
-    return '';
-  }
-
-  getMinorRole(index: number): string {
-    const s = this.slice;
-    if (!s) return '';
-    const type = this.selectedType();
-    const dimIdx = (s.curr + 2) % 12;
-    if (type === 'major') {
-      if (index === s.curr) return 'vi';
-      if (index === s.prev) return 'ii';
-      if (index === s.next) return 'iii';
-      if (index === dimIdx) return 'vii°';
-    } else {
-      if (index === s.curr) return 'i';
-      if (index === s.prev) return 'iv';
-      if (index === s.next) return 'v';
-      if (index === dimIdx) return 'ii°';
-    }
-    return '';
-  }
-
-  arcPath(innerR: number, outerR: number, index: number, gap = 1.5): string {
-    const mid = index * 30 - 90;
-    const s = (mid - 15 + gap) * (Math.PI / 180);
-    const e = (mid + 15 - gap) * (Math.PI / 180);
-    const cx = this.CX,
-      cy = this.CY;
-    const x1 = cx + outerR * Math.cos(s),
-      y1 = cy + outerR * Math.sin(s);
-    const x2 = cx + outerR * Math.cos(e),
-      y2 = cy + outerR * Math.sin(e);
-    const x3 = cx + innerR * Math.cos(e),
-      y3 = cy + innerR * Math.sin(e);
-    const x4 = cx + innerR * Math.cos(s),
-      y4 = cy + innerR * Math.sin(s);
-    const f = (n: number) => n.toFixed(2);
-    return `M${f(x1)} ${f(y1)} A${outerR} ${outerR} 0 0 1 ${f(x2)} ${f(y2)} L${f(x3)} ${f(y3)} A${innerR} ${innerR} 0 0 0 ${f(x4)} ${f(y4)}Z`;
-  }
-
-  textPos(midR: number, index: number): { x: number; y: number } {
-    const a = (index * 30 - 90) * (Math.PI / 180);
-    return {
-      x: this.CX + midR * Math.cos(a),
-      y: this.CY + midR * Math.sin(a),
-    };
-  }
-
-
   get chordTable(): ChordRow[] {
     const idx = this.selectedIndex();
     const type = this.selectedType();
@@ -560,28 +386,13 @@ export class CircleOfFifthsComponent {
     return this.chordTable.map((r) => r.chord);
   }
 
-  getAccidentalText(key: CircleKey): string {
-    if (key.sharps > 0) return `${key.sharps}♯`;
-    if (key.flats > 0) return `${key.flats}♭`;
-    return '—';
-  }
-
-  get selectedInfo() {
+  get selectedInfo(): { fullName: string } | null {
     const idx = this.selectedIndex();
     const type = this.selectedType();
     if (idx === null || type === null) return null;
     const key = KEYS[idx];
     const copy = this.text();
-    const scale = type === 'major' ? copy.major : copy.minor;
-    return {
-      name: type === 'major' ? key.major : key.minor,
-      scale,
-      fullName: `${type === 'major' ? key.major : key.minor} ${scale}`,
-      relativeKey:
-        type === 'major'
-          ? `${copy.relativeMinor}: ${key.minor}`
-          : `${copy.relativeMajor}: ${key.major}`,
-    };
+    return { fullName: `${type === 'major' ? key.major : key.minor} ${type === 'major' ? copy.major : copy.minor}` };
   }
 
   private deriveSections(numerals: string[], lookup: Map<string, string>): Section[] {

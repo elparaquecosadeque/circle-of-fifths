@@ -1,6 +1,6 @@
 {
   "name": "@gblp/circle-of-fifths",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "publishConfig": {
     "access": "public"
   },
@@ -13,6 +13,7 @@
     "@angular/core": "^22.0.0"
   },
   "dependencies": {
+    "@gblp/chord-finder": "^0.4.0",
     "tslib": "^2.3.0"
   },
   "sideEffects": false

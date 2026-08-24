@@ -1,6 +1,7 @@
 {
   "name": "circle-of-fifths",
   "version": "0.3.2",
+  "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "ng": "ng",
     "start": "ng build circle-of-fifths-lib && ng serve circle-of-fifths",

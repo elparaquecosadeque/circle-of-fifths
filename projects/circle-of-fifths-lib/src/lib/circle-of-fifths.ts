@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { ChordDiagram, ChordService } from '@gblp/chord-finder';
 
@@ -211,23 +211,23 @@ function spiceChord(chord: string, numeral: string, level: number): string {
 export class ChordSectionComponent {
   private readonly chordService = inject(ChordService);
 
-  readonly chords = input<string[]>([]);
+  readonly selectedIndex = input<number | null>(null);
+  readonly selectedType = input<'major' | 'minor' | null>(null);
   readonly language = input<Language>('en');
-  readonly alwaysShowDiagrams = input(false);
-  readonly alwaysShowDiagramsChange = output<boolean>();
   readonly text = computed(() => COPY[this.language()]);
 
-  // Seeded once from the persisted preference, not kept in sync with it —
-  // unchecking "always show" should only stop it persisting for next time,
-  // not yank away the grid the user is currently looking at. A self-destroying
-  // effect (rather than a field initializer) is needed because the input's
-  // real bound value isn't available until after construction.
   readonly diagramsExpanded = signal(false);
 
+  // Per-diagram fret position, keyed by ChordSearchResult.id.
+  readonly positionIndices = signal<Record<string, number>>({});
+
   constructor() {
-    const seedExpanded = effect(() => {
-      this.diagramsExpanded.set(this.alwaysShowDiagrams());
-      seedExpanded.destroy();
+    // A new key means a new set of diagrams — don't carry stale position
+    // choices over from the previous key's chords.
+    effect(() => {
+      this.selectedIndex();
+      this.selectedType();
+      this.positionIndices.set({});
     });
   }
 
@@ -235,40 +235,46 @@ export class ChordSectionComponent {
     this.diagramsExpanded.update((v) => !v);
   }
 
-  onAlwaysShowChange(checked: boolean): void {
-    this.alwaysShowDiagramsChange.emit(checked);
-    if (checked) this.diagramsExpanded.set(true);
+  positionIndexFor(id: string): number {
+    return this.positionIndices()[id] ?? 0;
   }
 
-  readonly match = computed(() => {
-    const input = this.chords();
-    if (!input.length) return null;
-    const inputSet = new Set(input);
-    let best: { idx: number; type: 'major' | 'minor'; score: number } | null = null;
-    for (let idx = 0; idx < 12; idx++) {
-      for (const type of ['major', 'minor'] as const) {
-        // chord names are language-independent; COPY.en is a dummy for label fields
-        const score = buildChordRows(idx, type, COPY.en).filter((r) => inputSet.has(r.chord)).length;
-        if (!best || score > best.score) best = { idx, type, score };
+  stepPosition(id: string, total: number, delta: number): void {
+    if (total <= 1) return;
+    this.positionIndices.update((m) => ({
+      ...m,
+      [id]: ((m[id] ?? 0) + delta + total) % total,
+    }));
+  }
+
+  stepAllPositions(delta: number): void {
+    this.positionIndices.update((m) => {
+      const next = { ...m };
+      for (const result of this.chordDiagrams()) {
+        const total = result.positions.length;
+        if (total <= 1) continue;
+        next[result.id] = ((next[result.id] ?? 0) + delta + total) % total;
       }
-    }
-    return best && best.score > 0 ? best : null;
-  });
+      return next;
+    });
+  }
 
   readonly rows = computed(() => {
-    const m = this.match();
-    if (!m) return [];
-    return buildChordRows(m.idx, m.type, this.text());
+    const idx = this.selectedIndex();
+    const type = this.selectedType();
+    if (idx === null || type === null) return [];
+    return buildChordRows(idx, type, this.text());
   });
 
   readonly info = computed(() => {
-    const m = this.match();
-    if (!m) return null;
+    const idx = this.selectedIndex();
+    const type = this.selectedType();
+    if (idx === null || type === null) return null;
     const copy = this.text();
-    const key = KEYS[m.idx];
+    const key = KEYS[idx];
     return {
-      fullName: `${m.type === 'major' ? key.major : key.minor} ${m.type === 'major' ? copy.major : copy.minor}`,
-      relativeKey: m.type === 'major'
+      fullName: `${type === 'major' ? key.major : key.minor} ${type === 'major' ? copy.major : copy.minor}`,
+      relativeKey: type === 'major'
         ? `${copy.relativeMinor}: ${key.minor}`
         : `${copy.relativeMajor}: ${key.major}`,
     };
@@ -293,8 +299,6 @@ export class ChordSectionComponent {
 })
 export class CircleOfFifthsComponent {
   readonly language = input<Language>('en');
-  readonly alwaysShowDiagrams = input(false);
-  readonly alwaysShowDiagramsChange = output<boolean>();
   readonly text = computed(() => COPY[this.language()]);
 
   selectedIndex = signal<number | null>(null);
@@ -388,10 +392,6 @@ export class CircleOfFifthsComponent {
     const type = this.selectedType();
     if (idx === null || type === null) return [];
     return buildChordRows(idx, type, this.text());
-  }
-
-  get chordNames(): string[] {
-    return this.chordTable.map((r) => r.chord);
   }
 
   get selectedInfo(): { fullName: string } | null {

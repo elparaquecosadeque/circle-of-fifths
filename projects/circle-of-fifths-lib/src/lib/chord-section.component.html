@@ -20,23 +20,43 @@
     </button>
 
     @if (diagramsExpanded()) {
-      <label class="always-show-diagrams">
-        <input
-          type="checkbox"
-          [checked]="alwaysShowDiagrams()"
-          (change)="onAlwaysShowChange($any($event.target).checked)"
-        />
-        {{ text().alwaysShowDiagrams }}
-      </label>
-
-      <div class="diagram-grid">
-        @for (result of chordDiagrams(); track result.id) {
-          @if (result.positions[0]; as position) {
-            <div class="diagram-wrap">
-              <app-chord-diagram [title]="result.displayName" [position]="position" [positionIndex]="0" />
-            </div>
+      <div class="diagram-grid-row">
+        <div class="diagram-grid">
+          @for (result of chordDiagrams(); track result.id) {
+            @if (result.positions[positionIndexFor(result.id)]; as position) {
+              <div class="diagram-wrap">
+                <button
+                  type="button"
+                  class="diagram-nav-btn"
+                  [disabled]="result.positions.length <= 1"
+                  [attr.aria-label]="text().previousPosition"
+                  (click)="stepPosition(result.id, result.positions.length, -1)"
+                >
+                  ▲
+                </button>
+                <app-chord-diagram
+                  [title]="result.displayName"
+                  [position]="position"
+                  [positionIndex]="positionIndexFor(result.id)"
+                />
+                <button
+                  type="button"
+                  class="diagram-nav-btn"
+                  [disabled]="result.positions.length <= 1"
+                  [attr.aria-label]="text().nextPosition"
+                  (click)="stepPosition(result.id, result.positions.length, 1)"
+                >
+                  ▼
+                </button>
+              </div>
+            }
           }
-        }
+        </div>
+
+        <div class="diagram-group-nav">
+          <button type="button" [attr.aria-label]="text().previousPositionAll" (click)="stepAllPositions(-1)">▲</button>
+          <button type="button" [attr.aria-label]="text().nextPositionAll" (click)="stepAllPositions(1)">▼</button>
+        </div>
       </div>
     }
   </section>

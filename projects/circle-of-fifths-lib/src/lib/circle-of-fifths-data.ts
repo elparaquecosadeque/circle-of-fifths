@@ -55,7 +55,10 @@ export const COPY = {
     relativeMajor: 'Relative major',
     showChordDiagrams: 'Show chord diagrams',
     hideChordDiagrams: 'Hide chord diagrams',
-    alwaysShowDiagrams: 'Always show diagrams',
+    previousPosition: 'Previous position',
+    nextPosition: 'Next position',
+    previousPositionAll: 'Previous position (all diagrams)',
+    nextPositionAll: 'Next position (all diagrams)',
     roles: {
       tonic: 'Tonic',
       supertonic: 'Supertonic',
@@ -97,7 +100,10 @@ export const COPY = {
     relativeMajor: 'Relativa mayor',
     showChordDiagrams: 'Mostrar acordes de diagramas',
     hideChordDiagrams: 'Ocultar acordes de diagramas',
-    alwaysShowDiagrams: 'Siempre mostrar diagramas',
+    previousPosition: 'Posición anterior',
+    nextPosition: 'Siguiente posición',
+    previousPositionAll: 'Posición anterior (todos)',
+    nextPositionAll: 'Siguiente posición (todos)',
     roles: {
       tonic: 'Tónica',
       supertonic: 'Supertónica',

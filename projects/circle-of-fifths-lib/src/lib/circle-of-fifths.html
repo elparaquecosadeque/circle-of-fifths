@@ -15,10 +15,9 @@
 
     <chord-section
       class="circle-and-chords-section"
-      [chords]="chordNames"
+      [selectedIndex]="selectedIndex()"
+      [selectedType]="selectedType()"
       [language]="language()"
-      [alwaysShowDiagrams]="alwaysShowDiagrams()"
-      (alwaysShowDiagramsChange)="alwaysShowDiagramsChange.emit($event)"
     ></chord-section>
   </div>
 

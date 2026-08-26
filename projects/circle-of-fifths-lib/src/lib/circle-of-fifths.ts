@@ -162,12 +162,12 @@ function buildChordRows(idx: number, type: 'major' | 'minor', copy: (typeof COPY
   } else {
     return [
       { numeral: 'i',   chord: KEYS[idx].minor,  chordType: copy.minor,      role: copy.roles.tonic,       state: 'tonic' },
+      { numeral: 'ii°', chord: dimChord(idx),    chordType: copy.diminished, role: copy.roles.supertonic,  state: 'scale-diminished' },
+      { numeral: 'III', chord: KEYS[idx].major,  chordType: copy.major,      role: copy.roles.mediant,     state: 'scale-major' },
       { numeral: 'iv',  chord: KEYS[prev].minor, chordType: copy.minor,      role: copy.roles.subdominant, state: 'scale-minor' },
       { numeral: 'v',   chord: KEYS[next].minor, chordType: copy.minor,      role: copy.roles.dominant,    state: 'scale-minor' },
-      { numeral: 'III', chord: KEYS[idx].major,  chordType: copy.major,      role: copy.roles.mediant,     state: 'scale-major' },
       { numeral: 'VI',  chord: KEYS[prev].major, chordType: copy.major,      role: copy.roles.submediant,  state: 'scale-major' },
       { numeral: 'VII', chord: KEYS[next].major, chordType: copy.major,      role: copy.roles.subtonic,    state: 'scale-major' },
-      { numeral: 'ii°', chord: dimChord(idx),    chordType: copy.diminished, role: copy.roles.supertonic,  state: 'scale-diminished' },
     ];
   }
 }

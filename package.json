@@ -1,6 +1,6 @@
 {
   "name": "circle-of-fifths",
-  "version": "0.4.1",
+  "version": "0.4.4",
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "ng": "ng",

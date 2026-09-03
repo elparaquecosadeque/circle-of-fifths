@@ -38,13 +38,15 @@ interface ProgressionDefinition {
   numerals: string[];
 }
 
+// Numeral-count varies per progression (3-6) so Verse length isn't uniformly
+// 4 across the pool — see deriveSections() for section-length variety too.
 const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
   major: [
     {
       name: { en: 'Anthemic', es: 'Épica' },
       mood: { en: '😄 Joyful', es: '😄 Alegre' },
       genre: { en: 'Folk, Rock', es: 'Folk, rock' },
-      numerals: ['I', 'IV', 'V', 'I'],
+      numerals: ['I', 'IV', 'V'],
     },
     {
       name: { en: 'Hopeful', es: 'Esperanzadora' },
@@ -56,13 +58,13 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
       name: { en: 'Melancholic', es: 'Melancólica' },
       mood: { en: '😢 Emotional', es: '😢 Emocional' },
       genre: { en: 'Ballads, Pop', es: 'Baladas, pop' },
-      numerals: ['vi', 'IV', 'I', 'V'],
+      numerals: ['vi', 'IV', 'I', 'V', 'ii', 'V'],
     },
     {
       name: { en: 'Cinematic', es: 'Cinemática' },
       mood: { en: '🎬 Tense', es: '🎬 Tensa' },
       genre: { en: 'Film, Jazz', es: 'Cine, jazz' },
-      numerals: ['ii', 'V', 'vii°', 'I'],
+      numerals: ['ii', 'V', 'I'],
     },
     {
       name: { en: 'Nostalgic', es: 'Retro' },
@@ -74,19 +76,43 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
       name: { en: 'Dreamy', es: 'Soñadora' },
       mood: { en: '🌸 Floaty', es: '🌸 Etérea' },
       genre: { en: 'J-Pop, Anime', es: 'J-Pop, anime' },
-      numerals: ['IV', 'V', 'iii', 'vi'],
+      numerals: ['IV', 'V', 'iii', 'vi', 'ii'],
     },
     {
       name: { en: 'Gospel', es: 'Gospel' },
       mood: { en: '🙏 Uplifting', es: '🙏 Elevadora' },
       genre: { en: 'Gospel, Soul', es: 'Gospel, soul' },
-      numerals: ['I', 'IV', 'ii', 'V'],
+      numerals: ['I', 'IV', 'ii', 'V', 'I'],
     },
     {
       name: { en: 'Bittersweet', es: 'Agridulce' },
       mood: { en: '🍂 Bittersweet', es: '🍂 Agridulce' },
       genre: { en: 'Alt Rock, Indie', es: 'Rock alternativo, indie' },
-      numerals: ['I', 'iii', 'IV', 'V'],
+      numerals: ['I', 'iii', 'IV', 'V', 'vi', 'IV'],
+    },
+    {
+      name: { en: 'Anxious', es: 'Ansiosa' },
+      mood: { en: '😰 Anxious', es: '😰 Ansiosa' },
+      genre: { en: 'Post-Punk, Alt', es: 'Post-punk, alternativo' },
+      numerals: ['vi', 'ii', 'V'],
+    },
+    {
+      name: { en: 'Triumphant', es: 'Triunfal' },
+      mood: { en: '🏆 Triumphant', es: '🏆 Triunfal' },
+      genre: { en: 'Orchestral, Rock', es: 'Orquestal, rock' },
+      numerals: ['I', 'V', 'vi', 'iii', 'IV', 'V'],
+    },
+    {
+      name: { en: 'Playful', es: 'Juguetona' },
+      mood: { en: '🎈 Playful', es: '🎈 Juguetona' },
+      genre: { en: "Children's, Pop", es: 'Infantil, pop' },
+      numerals: ['I', 'IV', 'I', 'V'],
+    },
+    {
+      name: { en: 'Sultry', es: 'Sensual' },
+      mood: { en: '🌆 Sultry', es: '🌆 Sensual' },
+      genre: { en: 'R&B, Neo-Soul', es: 'R&B, neo-soul' },
+      numerals: ['ii', 'V', 'I', 'vi', 'ii'],
     },
   ],
   minor: [
@@ -94,13 +120,13 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
       name: { en: 'Brooding', es: 'Sombría' },
       mood: { en: '🌑 Dark', es: '🌑 Oscura' },
       genre: { en: 'Rock, Metal', es: 'Rock, metal' },
-      numerals: ['i', 'VII', 'VI', 'VII'],
+      numerals: ['i', 'VII', 'VI'],
     },
     {
       name: { en: 'Haunting', es: 'Inquietante' },
       mood: { en: '👻 Mysterious', es: '👻 Misteriosa' },
       genre: { en: 'Film, Gothic', es: 'Cine, gótico' },
-      numerals: ['i', 'iv', 'VII', 'III'],
+      numerals: ['i', 'iv', 'VII', 'III', 'VII'],
     },
     {
       name: { en: 'Driving', es: 'Impulsora' },
@@ -112,7 +138,7 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
       name: { en: 'Wistful', es: 'Nostálgica' },
       mood: { en: '🌙 Wistful', es: '🌙 Nostálgica' },
       genre: { en: 'Cinematic', es: 'Cinemática' },
-      numerals: ['i', 'v', 'VI', 'VII'],
+      numerals: ['i', 'v', 'VI', 'VII', 'iv', 'VII'],
     },
     {
       name: { en: 'Flamenco', es: 'Flamenco' },
@@ -124,19 +150,43 @@ const PROGRESSIONS: Record<'major' | 'minor', ProgressionDefinition[]> = {
       name: { en: 'Tragic', es: 'Trágica' },
       mood: { en: '💔 Tragic', es: '💔 Trágica' },
       genre: { en: 'Classical, Drama', es: 'Clásica, drama' },
-      numerals: ['i', 'iv', 'v', 'i'],
+      numerals: ['i', 'iv', 'v'],
     },
     {
       name: { en: 'Epic', es: 'Épica' },
       mood: { en: '⚔️ Heroic', es: '⚔️ Heroico' },
       genre: { en: 'Epic, Orchestral', es: 'Épica, orquestal' },
-      numerals: ['i', 'III', 'VII', 'VI'],
+      numerals: ['i', 'III', 'VII', 'VI', 'iv', 'v'],
     },
     {
       name: { en: 'Ethereal', es: 'Etérea' },
       mood: { en: '🌊 Hypnotic', es: '🌊 Hipnótica' },
       genre: { en: 'Ambient, Post-Rock', es: 'Ambient, post-rock' },
-      numerals: ['i', 'VI', 'iv', 'VII'],
+      numerals: ['i', 'VI', 'iv', 'VII', 'i'],
+    },
+    {
+      name: { en: 'Somber', es: 'Lúgubre' },
+      mood: { en: '🖤 Somber', es: '🖤 Lúgubre' },
+      genre: { en: 'Doom, Ambient', es: 'Doom, ambient' },
+      numerals: ['i', 'VI', 'iv'],
+    },
+    {
+      name: { en: 'Restless', es: 'Inquieta' },
+      mood: { en: '🌀 Restless', es: '🌀 Inquieta' },
+      genre: { en: 'Trip-Hop, Industrial', es: 'Trip-hop, industrial' },
+      numerals: ['i', 'iv', 'VII', 'III', 'VI', 'v'],
+    },
+    {
+      name: { en: 'Yearning', es: 'Anhelante' },
+      mood: { en: '🕯️ Yearning', es: '🕯️ Anhelante' },
+      genre: { en: 'Neo-Classical, Piano', es: 'Neoclásica, piano' },
+      numerals: ['i', 'v', 'iv', 'i'],
+    },
+    {
+      name: { en: 'Defiant', es: 'Desafiante' },
+      mood: { en: '🔥 Defiant', es: '🔥 Desafiante' },
+      genre: { en: 'Punk, Metal', es: 'Punk, metal' },
+      numerals: ['i', 'VII', 'iv', 'VI', 'VII'],
     },
   ],
 };
@@ -192,6 +242,19 @@ const SPICE_SUFFIXES: Record<string, readonly [string, string, string]> = {
   'ii°':  ['m7♭5', 'm7♭5',   'm7♭5'      ],
 };
 
+// Each section type has its own characteristic length (a chorus tends to run
+// longer than a bridge) instead of every section being forced to match the
+// Verse's length.
+const SECTION_LENGTH = { chorus: 6, bridge: 2, outro: 3 } as const;
+
+// Truncates when longer than target, or loops the pattern back to its start
+// to fill out a target longer than the source — e.g. a 3-chord loop played
+// twice makes a perfectly normal 6-chord chorus.
+function resizeToLength(numerals: string[], targetLength: number): string[] {
+  if (numerals.length === targetLength) return numerals;
+  return Array.from({ length: targetLength }, (_, i) => numerals[i % numerals.length]);
+}
+
 function spiceChord(chord: string, numeral: string, level: number): string {
   if (level === 0) return chord;
   const suffixes = SPICE_SUFFIXES[numeral];
@@ -216,7 +279,8 @@ export class ChordSectionComponent {
   readonly language = input<Language>('en');
   readonly text = computed(() => COPY[this.language()]);
 
-  readonly diagramsExpanded = signal(false);
+  // Defaults to expanded so the diagram grid is visible without an extra click.
+  readonly diagramsExpanded = signal(true);
 
   // Per-diagram fret position, keyed by ChordSearchResult.id.
   readonly positionIndices = signal<Record<string, number>>({});
@@ -301,8 +365,10 @@ export class CircleOfFifthsComponent {
   readonly language = input<Language>('en');
   readonly text = computed(() => COPY[this.language()]);
 
-  selectedIndex = signal<number | null>(null);
-  selectedType = signal<'major' | 'minor' | null>(null);
+  // Defaults to C major so the page never starts on an empty "click a key" state —
+  // the diatonic chords and progressions sections render immediately on load.
+  selectedIndex = signal<number | null>(0);
+  selectedType = signal<'major' | 'minor' | null>('major');
   readonly activeProgressionDefs = signal<ProgressionDefinition[] | null>(null);
   readonly expandedCards = signal<Set<string>>(new Set());
   readonly transposeMap = signal<Map<string, number>>(new Map());
@@ -408,22 +474,26 @@ export class CircleOfFifthsComponent {
     const copy = this.text();
     const resolve = (ns: string[]) => ({ numerals: ns, chords: ns.map((n) => lookup.get(n) ?? n) });
 
-    // Chorus: rotate to lift chord (IV for major, VI for minor); else fixed fallback
+    // Chorus: rotate to lift chord (IV for major, VI for minor); else fixed fallback.
+    // Resized to its own typical length so it doesn't just mirror the Verse's.
     const chorusPivot = type === 'major' ? 'IV' : 'VI';
     const chorusIdx = numerals.indexOf(chorusPivot);
-    const chorus = chorusIdx > 0
-      ? resolve([...numerals.slice(chorusIdx), ...numerals.slice(0, chorusIdx)])
-      : resolve(type === 'major' ? ['I', 'IV', 'V', 'I'] : ['i', 'VI', 'III', 'VII']);
+    const chorusBase = chorusIdx > 0
+      ? [...numerals.slice(chorusIdx), ...numerals.slice(0, chorusIdx)]
+      : type === 'major' ? ['I', 'IV', 'V', 'I'] : ['i', 'VI', 'III', 'VII'];
+    const chorus = resolve(resizeToLength(chorusBase, SECTION_LENGTH.chorus));
 
-    // Bridge: rotate to contrast chord (vi for major, III for minor); else fixed fallback
+    // Bridge: rotate to contrast chord (vi for major, III for minor); else fixed fallback.
     const bridgePivot = type === 'major' ? 'vi' : 'III';
     const bridgeIdx = numerals.indexOf(bridgePivot);
-    const bridge = bridgeIdx >= 0
-      ? resolve([...numerals.slice(bridgeIdx), ...numerals.slice(0, bridgeIdx)])
-      : resolve(type === 'major' ? ['vi', 'IV', 'ii', 'V'] : ['III', 'VII', 'VI', 'iv']);
+    const bridgeBase = bridgeIdx >= 0
+      ? [...numerals.slice(bridgeIdx), ...numerals.slice(0, bridgeIdx)]
+      : type === 'major' ? ['vi', 'IV', 'ii', 'V'] : ['III', 'VII', 'VI', 'iv'];
+    const bridge = resolve(resizeToLength(bridgeBase, SECTION_LENGTH.bridge));
 
-    // Outro: fixed resolving pattern per mode
-    const outro = resolve(type === 'major' ? ['I', 'V', 'IV', 'I'] : ['i', 'VII', 'VI', 'i']);
+    // Outro: fixed resolving pattern per mode, sized to its own typical length.
+    const outroBase = type === 'major' ? ['I', 'V', 'IV', 'I'] : ['i', 'VII', 'VI', 'i'];
+    const outro = resolve(resizeToLength(outroBase, SECTION_LENGTH.outro));
 
     return [
       { label: copy.chorus, ...chorus },
